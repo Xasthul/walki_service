@@ -1,24 +1,25 @@
-import { Injectable } from '@nestjs/common';
-
-// This should be a real class/interface representing a user entity
-export type User = any;
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/entities/user.entity';
+import { CreateUserPayload } from 'src/types/requestBody/createUserPayload.dto';
+import { generatePasswordHash } from 'src/utils/hashing';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
-  private readonly users = [
-    {
-      userId: 1,
-      username: 'john',
-      password: 'changeme',
-    },
-    {
-      userId: 2,
-      username: 'maria',
-      password: 'guess',
-    },
-  ];
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) { };
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.users.find((user) => user.username === username);
+  async create(createUserPayload: CreateUserPayload) {
+    const doesUserAlreadyExist = await this.usersRepository.existsBy({ email: createUserPayload.email });
+    if (doesUserAlreadyExist) {
+      throw new ConflictException();
+    }
+    const user = new User();
+    user.email = createUserPayload.email;
+    user.password = await generatePasswordHash(createUserPayload.password);
+    await this.usersRepository.insert(user);
   }
 }
