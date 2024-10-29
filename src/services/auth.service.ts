@@ -11,10 +11,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signIn(
-    email: string,
-    pass: string,
-  ): Promise<SignInResponseModel> {
+  async signIn(email: string, pass: string): Promise<SignInResponseModel> {
     const user = await this.usersService.findOne(email);
     // TODO: bcrypt
     if (user?.password !== pass) {
