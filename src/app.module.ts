@@ -4,6 +4,7 @@ import { AuthModule } from './modules/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmAsyncConfig } from './typeOrmConfig';
 import { UsersModule } from './modules/users.module';
+import { VisitedPlacesModule } from './modules/visitedPlaces.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { UsersModule } from './modules/users.module';
     TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
     AuthModule,
     UsersModule,
+    VisitedPlacesModule,
   ],
 })
 export class AppModule {}
