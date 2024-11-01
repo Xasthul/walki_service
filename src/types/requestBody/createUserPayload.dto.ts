@@ -8,6 +8,12 @@ export class CreateUserPayload {
   readonly email: string;
 
   @ApiProperty()
+  @MaxLength(128)
+  @IsString()
+  @IsNotEmpty()
+  readonly name: string;
+
+  @ApiProperty()
   @MaxLength(256)
   @IsString()
   @IsNotEmpty()

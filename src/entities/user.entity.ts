@@ -10,6 +10,9 @@ export class User {
   email: string;
 
   @Column()
+  name: string;
+
+  @Column()
   password: string;
 
   @OneToOne(() => VisitedPlace, (visitedPlace) => visitedPlace.user)

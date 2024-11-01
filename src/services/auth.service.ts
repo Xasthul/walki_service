@@ -41,7 +41,7 @@ export class AuthService {
     };
   }
 
-  async signUp(createUserPayload: CreateUserPayload) {
+  async signUp(createUserPayload: CreateUserPayload): Promise<void> {
     await this.usersService.create(createUserPayload);
   }
 }
