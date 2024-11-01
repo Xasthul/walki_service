@@ -17,15 +17,20 @@ export class AuthService {
     private usersRepository: Repository<User>,
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async signIn(signInPayload: SignInPayload): Promise<SignInResponseModel> {
-    const user = await this.usersRepository.findOneBy({email: signInPayload.email});
+    const user = await this.usersRepository.findOneBy({
+      email: signInPayload.email,
+    });
     if (!user) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException();
     }
 
-    const hasPasswordsMatched = await comparPasswordWithHash(signInPayload.password, user.password);
+    const hasPasswordsMatched = await comparPasswordWithHash(
+      signInPayload.password,
+      user.password,
+    );
     if (!hasPasswordsMatched) {
       throw new UnauthorizedException();
     }

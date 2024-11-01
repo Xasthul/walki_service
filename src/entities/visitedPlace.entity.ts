@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToOne,
+  CreateDateColumn,
+  JoinColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -9,15 +16,23 @@ export class VisitedPlace {
   @Column()
   name: string;
 
-  @Column()
+  @Column('decimal')
   latitude: number;
 
-  @Column()
+  @Column('decimal')
   longitude: number;
 
-  @Column()
+  @CreateDateColumn({
+    name: 'visitedAt',
+    type: 'timestamp with time zone',
+    default: () => 'NOW()',
+  })
   visitedAt: Date;
 
   @OneToOne(() => User, (user) => user.visitedPlaces, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   user: User;
+
+  @Column('uuid')
+  userId: string;
 }

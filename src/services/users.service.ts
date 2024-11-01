@@ -10,10 +10,12 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) { };
+  ) {}
 
   async create(createUserPayload: CreateUserPayload) {
-    const doesUserAlreadyExist = await this.usersRepository.existsBy({ email: createUserPayload.email });
+    const doesUserAlreadyExist = await this.usersRepository.existsBy({
+      email: createUserPayload.email,
+    });
     if (doesUserAlreadyExist) {
       throw new ConflictException();
     }
