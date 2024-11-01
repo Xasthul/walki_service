@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './users.service';
 import { JwtPayload } from 'src/types/auth/jwtPayload';
-import { SignInResponseModel } from 'src/types/response/signInResponseModel.dto';
+import { SignInResource } from 'src/types/response/signInResource.dto';
 import { comparPasswordWithHash } from 'src/utils/hashing';
 import { SignInPayload } from 'src/types/requestBody/signInPayload.dto';
 import { CreateUserPayload } from 'src/types/requestBody/createUserPayload.dto';
@@ -19,7 +19,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signIn(signInPayload: SignInPayload): Promise<SignInResponseModel> {
+  async signIn(signInPayload: SignInPayload): Promise<SignInResource> {
     const user = await this.usersRepository.findOneBy({
       email: signInPayload.email,
     });

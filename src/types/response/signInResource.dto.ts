@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class SignInResponseModel {
+export class SignInResource {
   @ApiProperty()
-  readonly accessToken: string;
+  accessToken: string;
 }

@@ -2,9 +2,9 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToOne,
   CreateDateColumn,
   JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { User } from './user.entity';
 
@@ -29,7 +29,7 @@ export class VisitedPlace {
   })
   visitedAt: Date;
 
-  @OneToOne(() => User, (user) => user.visitedPlaces, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.visitedPlaces, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   user: User;
 

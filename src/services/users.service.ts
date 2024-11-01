@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { CreateUserPayload } from 'src/types/requestBody/createUserPayload.dto';
-import { UserResponseModel } from 'src/types/response/userResponseModel.dto';
+import { UserResource } from 'src/types/response/userResource.dto';
 import { generatePasswordHash } from 'src/utils/hashing';
 import { Repository } from 'typeorm';
 
@@ -31,11 +31,8 @@ export class UsersService {
     await this.usersRepository.insert(user);
   }
 
-  async findById(userId: string): Promise<UserResponseModel> {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId },
-      relations: { visitedPlaces: false },
-    });
+  async findById(userId: string): Promise<UserResource> {
+    const user = await this.usersRepository.findOneBy({ id: userId });
     if (!user) {
       throw new InternalServerErrorException();
     }
@@ -47,10 +44,7 @@ export class UsersService {
   }
 
   async delete(userId: string): Promise<void> {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId },
-      relations: { visitedPlaces: false },
-    });
+    const user = await this.usersRepository.findOneBy({ id: userId });
     if (!user) {
       throw new InternalServerErrorException();
     }

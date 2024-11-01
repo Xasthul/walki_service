@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UserResponseModel {
+export class UserResource {
   @ApiProperty()
-  readonly name: string;
+  name: string;
 
   @ApiProperty()
-  readonly email: string;
+  email: string;
 }
