@@ -45,4 +45,16 @@ export class UsersService {
       email: user.email,
     };
   }
+
+  async delete(userId: string): Promise<void> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: { visitedPlaces: false },
+    });
+    if (!user) {
+      throw new InternalServerErrorException();
+    }
+
+    await this.usersRepository.remove(user);
+  }
 }

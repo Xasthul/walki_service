@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -19,5 +20,11 @@ export class UsersController {
   @Get('profile')
   async signIn(@AuthUser() user: JwtPayload) {
     return await this.usersService.findById(user.userId);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Delete()
+  async deleteUser(@AuthUser() user: JwtPayload) {
+    return await this.usersService.delete(user.userId);
   }
 }
