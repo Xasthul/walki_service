@@ -15,6 +15,7 @@ import { VisitedPlacesService } from 'src/services/visitedPlaces.service';
 import { JwtPayload } from 'src/types/auth/jwtPayload';
 import { GetVisitedPlacesQueryParam } from 'src/types/queryParams/getVisitedPlacesQueryParam.dto';
 import { VisitedPlacePayload } from 'src/types/requestBody/visitedPlacePayload.dto';
+import { GetVisitedPlacesResource } from 'src/types/response/getVisitedPlacesResource.dto';
 import { VisitedPlaceResource } from 'src/types/response/visitedPlaceResource.dto';
 
 @Controller('visitedPlaces')
@@ -37,7 +38,7 @@ export class VisitedPlacesController {
   async getAllVisitedPlaces(
     @Query() query: GetVisitedPlacesQueryParam,
     @AuthUser() user: JwtPayload,
-  ): Promise<VisitedPlaceResource[]> {
+  ): Promise<GetVisitedPlacesResource> {
     return await this.visitedPlacesService.findAll(query, user.userId);
   }
 }

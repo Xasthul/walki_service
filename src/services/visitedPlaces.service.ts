@@ -4,6 +4,7 @@ import { User } from 'src/entities/user.entity';
 import { VisitedPlace } from 'src/entities/visitedPlace.entity';
 import { GetVisitedPlacesQueryParam } from 'src/types/queryParams/getVisitedPlacesQueryParam.dto';
 import { VisitedPlacePayload } from 'src/types/requestBody/visitedPlacePayload.dto';
+import { GetVisitedPlacesResource } from 'src/types/response/getVisitedPlacesResource.dto';
 import { VisitedPlaceResource } from 'src/types/response/visitedPlaceResource.dto';
 import { mapVisitedPlaceToVisitedPlaceResource } from 'src/utils/mappers/mapVisitedPlaceToVisitedPlaceResource.dto';
 import { Repository } from 'typeorm';
@@ -15,7 +16,7 @@ export class VisitedPlacesService {
     private visitedPlacesRepository: Repository<VisitedPlace>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async visitPlace(
     visitPlacePayload: VisitedPlacePayload,
@@ -37,7 +38,7 @@ export class VisitedPlacesService {
   async findAll(
     getVisitedPlacesQueryParam: GetVisitedPlacesQueryParam,
     userId: string,
-  ): Promise<VisitedPlaceResource[]> {
+  ): Promise<GetVisitedPlacesResource> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
       relations: { visitedPlaces: true },
@@ -46,6 +47,6 @@ export class VisitedPlacesService {
       throw new InternalServerErrorException();
     }
 
-    return user.visitedPlaces.map(mapVisitedPlaceToVisitedPlaceResource);
+    return { items: user.visitedPlaces.map(mapVisitedPlaceToVisitedPlaceResource) };
   }
 }
