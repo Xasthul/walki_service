@@ -2,6 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { VisitedPlaceResource } from './visitedPlaceResource.dto';
 
 export class GetVisitedPlacesResource {
-  @ApiProperty()
+  @ApiProperty({ isArray: true })
   items: VisitedPlaceResource[];
 }

@@ -7,6 +7,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { User } from './user.entity';
+import { DecimalColumnTransformer } from 'src/utils/transformers/decimalColumnTransformer';
 
 @Entity()
 export class VisitedPlace {
@@ -16,10 +17,10 @@ export class VisitedPlace {
   @Column()
   name: string;
 
-  @Column('decimal')
+  @Column('decimal', { transformer: new DecimalColumnTransformer() })
   latitude: number;
 
-  @Column('decimal')
+  @Column('decimal', { transformer: new DecimalColumnTransformer() })
   longitude: number;
 
   @CreateDateColumn({
