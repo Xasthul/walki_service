@@ -79,7 +79,7 @@ export class AuthService {
 
   private async createAccessToken(userId: string): Promise<string> {
     const accessTokenPayload: AccessTokenPayload = { userId: userId };
-    return await this.jwtService.signAsync(accessTokenPayload, { expiresIn: '10m' });
+    return await this.jwtService.signAsync(accessTokenPayload, { expiresIn: '5m' });
   }
 
   private async createRefreshToken(user: User): Promise<string> {
