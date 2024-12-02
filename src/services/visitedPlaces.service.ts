@@ -39,14 +39,13 @@ export class VisitedPlacesService {
     getVisitedPlacesQueryParam: GetVisitedPlacesQueryParam,
     userId: string,
   ): Promise<GetVisitedPlacesResource> {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId },
-      relations: { visitedPlaces: true },
-    });
-    if (!user) {
-      throw new InternalServerErrorException();
-    }
+    const places = await this.visitedPlacesRepository
+      .createQueryBuilder("vp")
+      .innerJoin('vp.user', 'user')
+      .where('user.id = :id', { id: userId })
+      .andWhere('vp.visitedAt > :fromDate', { fromDate: getVisitedPlacesQueryParam.fromDate })
+      .getMany();
 
-    return { items: user.visitedPlaces.map(mapVisitedPlaceToVisitedPlaceResource) };
+    return { items: places.map(mapVisitedPlaceToVisitedPlaceResource) };
   }
 }
