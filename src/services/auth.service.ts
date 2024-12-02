@@ -11,6 +11,8 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RefreshToken } from 'src/entities/refreshToken.entity';
 import { RefreshTokenPayload } from 'src/types/auth/refreshTokenPayload';
+import { RefreshTokenPayload as RefreshTokenDto } from 'src/types/requestBody/refreshTokenPayload.dto';
+import { RefreshTokenResource } from 'src/types/response/refreshTokenResource.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +24,10 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
   ) { }
+
+  async signUp(createUserPayload: CreateUserPayload): Promise<void> {
+    await this.usersService.create(createUserPayload);
+  }
 
   async signIn(signInPayload: SignInPayload): Promise<SignInResource> {
     const user = await this.usersRepository.findOneBy({ email: signInPayload.email });
@@ -37,23 +43,51 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    // Remove all records of existing refresh tokens issued to user
     await this.refreshTokensRepository.delete({ userId: user.id });
 
-    // Create a new refresh token record
+    return {
+      accessToken: await this.createAccessToken(user.id),
+      refreshToken: await this.createRefreshToken(user),
+    };
+  }
+
+  async refreshToken(refreshToken: string): Promise<RefreshTokenResource> {
+    let providedRefreshToken: RefreshTokenPayload;
+    try {
+      providedRefreshToken = this.jwtService.verify(refreshToken);
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.usersRepository.findOneBy({ id: providedRefreshToken.userId });
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    const oldRefreshToken = await this.refreshTokensRepository.findOneBy({ id: providedRefreshToken.sub });
+    if (!oldRefreshToken) {
+      throw new UnauthorizedException();
+    }
+
+    await this.refreshTokensRepository.remove(oldRefreshToken);
+
+    return {
+      accessToken: await this.createAccessToken(user.id),
+      refreshToken: await this.createRefreshToken(user),
+    };
+  }
+
+  private async createAccessToken(userId: string): Promise<string> {
+    const accessTokenPayload: AccessTokenPayload = { userId: userId };
+    return await this.jwtService.signAsync(accessTokenPayload, { expiresIn: '10m' });
+  }
+
+  private async createRefreshToken(user: User): Promise<string> {
     const refreshToken = new RefreshToken();
     refreshToken.user = user;
     await this.refreshTokensRepository.save(refreshToken);
 
-    const accessTokenPayload: AccessTokenPayload = { userId: user.id };
-    const refreshTokenPayload: RefreshTokenPayload = { sub: refreshToken.id };
-    return {
-      accessToken: await this.jwtService.signAsync(accessTokenPayload, { expiresIn: '10m' }),
-      refreshToken: await this.jwtService.signAsync(refreshTokenPayload, { expiresIn: '21d' }),
-    };
-  }
-
-  async signUp(createUserPayload: CreateUserPayload): Promise<void> {
-    await this.usersService.create(createUserPayload);
+    const refreshTokenPayload: RefreshTokenPayload = { sub: refreshToken.id, userId: refreshToken.userId };
+    return await this.jwtService.signAsync(refreshTokenPayload, { expiresIn: '21d' });
   }
 }
