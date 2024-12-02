@@ -6,13 +6,14 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthUser } from 'src/decorators/authUser.decorator';
 import { JwtAuthGuard } from 'src/guards/jwtAuth.guard';
 import { UsersService } from 'src/services/users.service';
 import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
 import { UserResource } from 'src/types/response/userResource.dto';
 
+@ApiTags('Users')
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {

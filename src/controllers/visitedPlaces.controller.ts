@@ -8,7 +8,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthUser } from 'src/decorators/authUser.decorator';
 import { JwtAuthGuard } from 'src/guards/jwtAuth.guard';
 import { VisitedPlacesService } from 'src/services/visitedPlaces.service';
@@ -18,7 +18,8 @@ import { VisitedPlacePayload } from 'src/types/requestBody/visitedPlacePayload.d
 import { GetVisitedPlacesResource } from 'src/types/response/getVisitedPlacesResource.dto';
 import { VisitedPlaceResource } from 'src/types/response/visitedPlaceResource.dto';
 
-@Controller('visitedPlaces')
+@ApiTags('Visited places')
+@Controller('visited-places')
 @UseGuards(JwtAuthGuard)
 export class VisitedPlacesController {
   constructor(private visitedPlacesService: VisitedPlacesService) {}
