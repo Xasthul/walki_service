@@ -28,7 +28,7 @@ export class UsersService {
     user.email = createUserPayload.email;
     user.name = createUserPayload.name;
     user.password = await generatePasswordHash(createUserPayload.password);
-    await this.usersRepository.insert(user);
+    await this.usersRepository.save(user);
   }
 
   async findById(userId: string): Promise<UserResource> {

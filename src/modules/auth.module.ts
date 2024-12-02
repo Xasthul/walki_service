@@ -8,17 +8,17 @@ import { JwtStrategy } from 'src/guards/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { User } from 'src/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { RefreshToken } from 'src/entities/refreshToken.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, RefreshToken]),
     UsersModule,
     PassportModule,
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
         global: true,
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '15m' },
       }),
       inject: [ConfigService],
     }),

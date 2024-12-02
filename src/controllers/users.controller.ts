@@ -10,7 +10,7 @@ import { ApiResponse } from '@nestjs/swagger';
 import { AuthUser } from 'src/decorators/authUser.decorator';
 import { JwtAuthGuard } from 'src/guards/jwtAuth.guard';
 import { UsersService } from 'src/services/users.service';
-import { JwtPayload } from 'src/types/auth/jwtPayload';
+import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
 import { UserResource } from 'src/types/response/userResource.dto';
 
 @Controller('users')
@@ -21,13 +21,13 @@ export class UsersController {
   @ApiResponse({ status: HttpStatus.OK, type: UserResource })
   @HttpCode(HttpStatus.OK)
   @Get('profile')
-  async signIn(@AuthUser() user: JwtPayload): Promise<UserResource> {
+  async signIn(@AuthUser() user: AccessTokenPayload): Promise<UserResource> {
     return await this.usersService.findById(user.userId);
   }
 
   @HttpCode(HttpStatus.OK)
   @Delete()
-  async deleteUser(@AuthUser() user: JwtPayload): Promise<void> {
+  async deleteUser(@AuthUser() user: AccessTokenPayload): Promise<void> {
     return await this.usersService.delete(user.userId);
   }
 }

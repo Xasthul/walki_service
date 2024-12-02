@@ -12,7 +12,7 @@ import { ApiResponse } from '@nestjs/swagger';
 import { AuthUser } from 'src/decorators/authUser.decorator';
 import { JwtAuthGuard } from 'src/guards/jwtAuth.guard';
 import { VisitedPlacesService } from 'src/services/visitedPlaces.service';
-import { JwtPayload } from 'src/types/auth/jwtPayload';
+import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
 import { GetVisitedPlacesQueryParam } from 'src/types/queryParams/getVisitedPlacesQueryParam.dto';
 import { VisitedPlacePayload } from 'src/types/requestBody/visitedPlacePayload.dto';
 import { GetVisitedPlacesResource } from 'src/types/response/getVisitedPlacesResource.dto';
@@ -27,7 +27,7 @@ export class VisitedPlacesController {
   @Post('add')
   async signIn(
     @Body() body: VisitedPlacePayload,
-    @AuthUser() user: JwtPayload,
+    @AuthUser() user: AccessTokenPayload,
   ): Promise<void> {
     return await this.visitedPlacesService.visitPlace(body, user.userId);
   }
@@ -37,7 +37,7 @@ export class VisitedPlacesController {
   @Get()
   async getAllVisitedPlaces(
     @Query() query: GetVisitedPlacesQueryParam,
-    @AuthUser() user: JwtPayload,
+    @AuthUser() user: AccessTokenPayload,
   ): Promise<GetVisitedPlacesResource> {
     return await this.visitedPlacesService.findAll(query, user.userId);
   }
