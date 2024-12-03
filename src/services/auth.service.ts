@@ -64,7 +64,10 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const oldRefreshToken = await this.refreshTokensRepository.findOneBy({ id: providedRefreshToken.sub });
+    const oldRefreshToken = await this.refreshTokensRepository.findOneBy({
+      id: providedRefreshToken.sub,
+      userId: providedRefreshToken.userId,
+    });
     if (!oldRefreshToken) {
       throw new UnauthorizedException();
     }
