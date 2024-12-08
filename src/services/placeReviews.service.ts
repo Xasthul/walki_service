@@ -1,5 +1,6 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { ProfanityClient } from "src/clients/ProfanityClient/profanity.client";
 import { Place } from "src/entities/place.entity";
 import { PlaceReview } from "src/entities/placeReview.entity";
 import { User } from "src/entities/user.entity";
@@ -17,6 +18,7 @@ export class PlaceReviewsService {
         private usersRepository: Repository<User>,
         @InjectRepository(Place)
         private placesRepository: Repository<Place>,
+        private profanityClient: ProfanityClient,
     ) { }
 
     async createPlaceReview(payload: CreatePlaceReviewPayload, userId: string): Promise<void> {
@@ -28,6 +30,11 @@ export class PlaceReviewsService {
         const place = await this.placesRepository.findOneBy({ googlePlaceId: payload.googlePlaceId });
         if (!place) {
             throw new InternalServerErrorException();
+        }
+
+        const profanityCheck = await this.profanityClient.verify(payload.content);
+        if (profanityCheck.isProfanity) {
+            throw new BadRequestException();
         }
 
         const review = new PlaceReview();

@@ -20,11 +20,9 @@ export class Place {
   @Column('decimal', { transformer: new DecimalColumnTransformer() })
   longitude: number;
 
-  @Column()
   @OneToMany(() => PlaceReview, (review) => review.place)
   reviews: PlaceReview[];
 
-  @Column()
   @OneToMany(() => PlaceVisitRecord, (visitRecord) => visitRecord.place)
   visitRecords: PlaceVisitRecord[];
 }

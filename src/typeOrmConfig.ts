@@ -7,6 +7,7 @@ import { User } from './entities/user.entity';
 import { PlaceVisitRecord } from './entities/placeVisitRecord.entity';
 import { RefreshToken } from './entities/refreshToken.entity';
 import { PlaceReview } from './entities/placeReview.entity';
+import { Place } from './entities/place.entity';
 
 export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
   inject: [ConfigService],
@@ -22,8 +23,8 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
       database: configService.get<string>('DB_DATABASE'),
       entities: [
         User,
-        PlaceVisitRecord,
         RefreshToken,
+        Place,
         PlaceVisitRecord,
         PlaceReview,
       ],

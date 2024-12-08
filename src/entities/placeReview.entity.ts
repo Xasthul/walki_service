@@ -32,7 +32,7 @@ export class PlaceReview {
   createdAt: Date;
 
   @UpdateDateColumn({
-    name: 'createdAt',
+    name: 'updatedAt',
     type: 'timestamp with time zone',
     default: () => 'NOW()',
   })

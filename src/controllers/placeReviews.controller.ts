@@ -31,10 +31,7 @@ export class PlaceReviewsController {
         @Body() body: CreatePlaceReviewPayload,
         @AuthUser() user: AccessTokenPayload,
     ): Promise<void> {
-        return await this.placeReviewsService.createPlaceReview(
-            body,
-            user.userId,
-        );
+        return await this.placeReviewsService.createPlaceReview(body, user.userId);
     }
 
     @ApiResponse({ status: HttpStatus.OK, type: [PlaceReviewResource] })
