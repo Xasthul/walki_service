@@ -57,7 +57,7 @@ export class PlaceReviewsService {
   async findAllForPlace(googlePlaceId: string): Promise<GetPlaceReviewsResource> {
     const place = await this.placesRepository.findOneBy({ googlePlaceId: googlePlaceId });
     if (!place) {
-      throw new InternalServerErrorException();
+      return { items: [] };
     }
 
     const reviews = await this.placeReviewsRepository.find({
