@@ -11,7 +11,6 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RefreshToken } from 'src/entities/refreshToken.entity';
 import { RefreshTokenPayload } from 'src/types/auth/refreshTokenPayload';
-import { RefreshTokenPayload as RefreshTokenDto } from 'src/types/requestBody/refreshTokenPayload.dto';
 import { RefreshTokenResource } from 'src/types/response/refreshTokenResource.dto';
 
 @Injectable()
@@ -23,14 +22,16 @@ export class AuthService {
     private refreshTokensRepository: Repository<RefreshToken>,
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async signUp(createUserPayload: CreateUserPayload): Promise<void> {
     await this.usersService.create(createUserPayload);
   }
 
   async signIn(signInPayload: SignInPayload): Promise<SignInResource> {
-    const user = await this.usersRepository.findOneBy({ email: signInPayload.email });
+    const user = await this.usersRepository.findOneBy({
+      email: signInPayload.email,
+    });
     if (!user) {
       throw new UnauthorizedException();
     }
@@ -59,7 +60,9 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const user = await this.usersRepository.findOneBy({ id: providedRefreshToken.userId });
+    const user = await this.usersRepository.findOneBy({
+      id: providedRefreshToken.userId,
+    });
     if (!user) {
       throw new UnauthorizedException();
     }
@@ -82,7 +85,9 @@ export class AuthService {
 
   private async createAccessToken(userId: string): Promise<string> {
     const accessTokenPayload: AccessTokenPayload = { userId: userId };
-    return await this.jwtService.signAsync(accessTokenPayload, { expiresIn: '5m' });
+    return await this.jwtService.signAsync(accessTokenPayload, {
+      expiresIn: '5m',
+    });
   }
 
   private async createRefreshToken(user: User): Promise<string> {
@@ -90,7 +95,12 @@ export class AuthService {
     refreshToken.user = user;
     await this.refreshTokensRepository.save(refreshToken);
 
-    const refreshTokenPayload: RefreshTokenPayload = { sub: refreshToken.id, userId: refreshToken.userId };
-    return await this.jwtService.signAsync(refreshTokenPayload, { expiresIn: '21d' });
+    const refreshTokenPayload: RefreshTokenPayload = {
+      sub: refreshToken.id,
+      userId: refreshToken.userId,
+    };
+    return await this.jwtService.signAsync(refreshTokenPayload, {
+      expiresIn: '21d',
+    });
   }
 }

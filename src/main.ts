@@ -45,4 +45,4 @@ async function bootstrap() {
 }
 bootstrap();
 
-// TODO: cron to update google places ids once a year
+// TODO: update google places ids once a year https://developers.google.com/maps/documentation/places/web-service/place-id#refresh-id

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class VisitedPlaceResource {
+export class PlaceVisitRecordResource {
   @ApiProperty()
   name: string;
 

@@ -1,9 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class VisitedPlacePayload {
+export class CreatePlaceVisitRecordPayload {
   @ApiProperty()
-  @MaxLength(128)
+  @IsString()
+  @IsNotEmpty()
+  readonly googlePlaceId: string;
+
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   readonly name: string;

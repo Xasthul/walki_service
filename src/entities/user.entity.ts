@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, OneToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { PlaceVisitRecord } from './placeVisitRecord.entity';
 import { RefreshToken } from './refreshToken.entity';
 import { PlaceReview } from './placeReview.entity';
@@ -19,7 +25,7 @@ export class User {
 
   @OneToMany(() => PlaceVisitRecord, (visitRecord) => visitRecord.user)
   visitedPlaces: PlaceVisitRecord[];
-  
+
   @OneToMany(() => PlaceReview, (review) => review.user)
   placesReviews: PlaceReview[];
 
