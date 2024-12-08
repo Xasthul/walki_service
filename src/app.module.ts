@@ -19,4 +19,4 @@ import { HttpModule } from '@nestjs/axios';
     PlaceReviewsModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -18,7 +18,7 @@ export class UsersService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private profanityClient: ProfanityClient,
-  ) { }
+  ) {}
 
   async create(createUserPayload: CreateUserPayload): Promise<void> {
     const doesUserAlreadyExist = await this.usersRepository.existsBy({
@@ -28,7 +28,9 @@ export class UsersService {
       throw new ConflictException();
     }
 
-    const profanityCheck = await this.profanityClient.verify(createUserPayload.name);
+    const profanityCheck = await this.profanityClient.verify(
+      createUserPayload.name,
+    );
     if (profanityCheck.isProfanity) {
       throw new BadRequestException();
     }

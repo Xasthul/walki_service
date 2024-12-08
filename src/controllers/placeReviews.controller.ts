@@ -1,13 +1,12 @@
 import {
-    Body,
-    Controller,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Param,
-    Post,
-    Query,
-    UseGuards,
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthUser } from 'src/decorators/authUser.decorator';
@@ -23,21 +22,23 @@ import { PlaceReviewResource } from 'src/types/response/placeReviewResource.dto'
 @Controller('place-reviews')
 @UseGuards(JwtAuthGuard)
 export class PlaceReviewsController {
-    constructor(private placeReviewsService: PlaceReviewsService) { }
+  constructor(private placeReviewsService: PlaceReviewsService) {}
 
-    @HttpCode(HttpStatus.OK)
-    @Post('create')
-    async createPlaceVisitRecord(
-        @Body() body: CreatePlaceReviewPayload,
-        @AuthUser() user: AccessTokenPayload,
-    ): Promise<void> {
-        return await this.placeReviewsService.createPlaceReview(body, user.userId);
-    }
+  @HttpCode(HttpStatus.OK)
+  @Post('create')
+  async createPlaceVisitRecord(
+    @Body() body: CreatePlaceReviewPayload,
+    @AuthUser() user: AccessTokenPayload,
+  ): Promise<void> {
+    return await this.placeReviewsService.createPlaceReview(body, user.userId);
+  }
 
-    @ApiResponse({ status: HttpStatus.OK, type: [PlaceReviewResource] })
-    @HttpCode(HttpStatus.OK)
-    @Get(':googlePlaceId')
-    async getAllPlaceReviews(@Param() param: GetPlaceReviewsParam): Promise<GetPlaceReviewsResource> {
-        return await this.placeReviewsService.findAllForPlace(param.googlePlaceId);
-    }
+  @ApiResponse({ status: HttpStatus.OK, type: [PlaceReviewResource] })
+  @HttpCode(HttpStatus.OK)
+  @Get(':googlePlaceId')
+  async getAllPlaceReviews(
+    @Param() param: GetPlaceReviewsParam,
+  ): Promise<GetPlaceReviewsResource> {
+    return await this.placeReviewsService.findAllForPlace(param.googlePlaceId);
+  }
 }

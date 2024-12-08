@@ -1,4 +1,4 @@
 export interface IProfanityClientResult {
-    isProfanity: boolean;
-    score: number;
+  isProfanity: boolean;
+  score: number;
 }
