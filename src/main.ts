@@ -44,3 +44,5 @@ async function bootstrap() {
   await app.listen({ port: port });
 }
 bootstrap();
+
+// TODO: cron to update google places ids once a year

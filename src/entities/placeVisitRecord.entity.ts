@@ -7,22 +7,19 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { User } from './user.entity';
-import { DecimalColumnTransformer } from 'src/utils/transformers/decimalColumnTransformer';
+import { Place } from './place.entity';
 
 @Entity()
-export class VisitedPlace {
+export class PlaceVisitRecord {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  name: string;
+  @Column('uuid')
+  userId: string;
 
-  @Column('decimal', { transformer: new DecimalColumnTransformer() })
-  latitude: number;
-
-  @Column('decimal', { transformer: new DecimalColumnTransformer() })
-  longitude: number;
-
+  @Column('uuid')
+  placeId: string;
+  
   @CreateDateColumn({
     name: 'visitedAt',
     type: 'timestamp with time zone',
@@ -34,6 +31,7 @@ export class VisitedPlace {
   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   user: User;
 
-  @Column('uuid')
-  userId: string;
+  @ManyToOne(() => Place, (place) => place.visitRecords, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'placeId', referencedColumnName: 'id' })
+  place: Place;
 }

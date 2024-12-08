@@ -1,4 +1,4 @@
-import { VisitedPlace } from 'src/entities/visitedPlace.entity';
+import { VisitedPlace } from 'src/entities/placeVisitRecord.entity';
 import { VisitedPlaceResource } from 'src/types/response/visitedPlaceResource.dto';
 
 export const mapVisitedPlaceToVisitedPlaceResource = (

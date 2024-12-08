@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
-import { VisitedPlace } from 'src/entities/visitedPlace.entity';
+import { VisitedPlace } from 'src/entities/placeVisitRecord.entity';
 import { GetVisitedPlacesQueryParam } from 'src/types/queryParams/getVisitedPlacesQueryParam.dto';
 import { VisitedPlacePayload } from 'src/types/requestBody/visitedPlacePayload.dto';
 import { GetVisitedPlacesResource } from 'src/types/response/getVisitedPlacesResource.dto';
