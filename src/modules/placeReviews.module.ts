@@ -9,10 +9,7 @@ import { User } from 'src/entities/user.entity';
 import { PlaceReviewsService } from 'src/services/placeReviews.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, Place, PlaceReview]),
-    HttpModule,
-  ],
+  imports: [TypeOrmModule.forFeature([User, Place, PlaceReview]),],
   providers: [PlaceReviewsService, ProfanityClient],
   controllers: [PlaceReviewsController],
 })
