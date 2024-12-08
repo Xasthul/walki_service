@@ -31,9 +31,7 @@ export class PlaceVisitRecord {
   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   user: User;
 
-  @ManyToOne(() => Place, (place) => place.visitRecords, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Place, (place) => place.visitRecords, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'placeId', referencedColumnName: 'id' })
   place: Place;
 }
