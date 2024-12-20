@@ -10,7 +10,7 @@ import { SignInResource } from 'src/types/response/signInResource.dto';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   @ApiResponse({ status: HttpStatus.OK, type: SignInResource })
   @HttpCode(HttpStatus.OK)
@@ -27,7 +27,11 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('refresh-token')
-  async refreshToken(@Body() refreshTokenPayload: RefreshTokenPayload): Promise<RefreshTokenResource> {
-    return await this.authService.refreshToken(refreshTokenPayload.refreshToken);
+  async refreshToken(
+    @Body() refreshTokenPayload: RefreshTokenPayload,
+  ): Promise<RefreshTokenResource> {
+    return await this.authService.refreshToken(
+      refreshTokenPayload.refreshToken,
+    );
   }
 }

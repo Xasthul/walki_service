@@ -1,6 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, OneToOne } from 'typeorm';
-import { VisitedPlace } from './visitedPlace.entity';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
+import { PlaceVisitRecord } from './placeVisitRecord.entity';
 import { RefreshToken } from './refreshToken.entity';
+import { PlaceReview } from './placeReview.entity';
 
 @Entity()
 export class User {
@@ -16,8 +23,11 @@ export class User {
   @Column()
   password: string;
 
-  @OneToMany(() => VisitedPlace, (visitedPlace) => visitedPlace.user)
-  visitedPlaces: VisitedPlace[];
+  @OneToMany(() => PlaceVisitRecord, (visitRecord) => visitRecord.user)
+  visitedPlaces: PlaceVisitRecord[];
+
+  @OneToMany(() => PlaceReview, (review) => review.user)
+  placesReviews: PlaceReview[];
 
   @OneToOne(() => RefreshToken, (refreshToken) => refreshToken.userId)
   refreshTokenId: string;

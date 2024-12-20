@@ -44,3 +44,5 @@ async function bootstrap() {
   await app.listen({ port: port });
 }
 bootstrap();
+
+// TODO: update google places ids once a year https://developers.google.com/maps/documentation/places/web-service/place-id#refresh-id

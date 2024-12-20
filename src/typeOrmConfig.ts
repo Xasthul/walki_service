@@ -4,8 +4,10 @@ import {
   TypeOrmModuleOptions,
 } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { VisitedPlace } from './entities/visitedPlace.entity';
+import { PlaceVisitRecord } from './entities/placeVisitRecord.entity';
 import { RefreshToken } from './entities/refreshToken.entity';
+import { PlaceReview } from './entities/placeReview.entity';
+import { Place } from './entities/place.entity';
 
 export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
   inject: [ConfigService],
@@ -19,7 +21,7 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
       username: configService.get<string>('DB_USERNAME'),
       password: configService.get<string>('DB_PASSWORD'),
       database: configService.get<string>('DB_DATABASE'),
-      entities: [User, VisitedPlace, RefreshToken],
+      entities: [User, RefreshToken, Place, PlaceVisitRecord, PlaceReview],
       // NOTE: must be false in prod
       synchronize: true,
     };
