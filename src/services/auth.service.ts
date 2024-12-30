@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './users.service';
 import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
 import { SignInResource } from 'src/types/response/signInResource.dto';
-import { comparPasswordWithHash } from 'src/utils/hashing';
+import { comparePasswordWithHash } from 'src/utils/hashing';
 import { SignInPayload } from 'src/types/requestBody/signInPayload.dto';
 import { CreateUserPayload } from 'src/types/requestBody/createUserPayload.dto';
 import { User } from 'src/entities/user.entity';
@@ -36,7 +36,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const hasPasswordsMatched = await comparPasswordWithHash(
+    const hasPasswordsMatched = await comparePasswordWithHash(
       signInPayload.password,
       user.password,
     );
@@ -55,7 +55,7 @@ export class AuthService {
   async refreshToken(refreshToken: string): Promise<RefreshTokenResource> {
     let providedRefreshToken: RefreshTokenPayload;
     try {
-      providedRefreshToken = this.jwtService.verify(refreshToken);
+      providedRefreshToken = await this.jwtService.verifyAsync(refreshToken);
     } catch (error) {
       throw new UnauthorizedException();
     }
