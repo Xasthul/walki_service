@@ -26,7 +26,7 @@ export class PlaceReviewsController {
 
   @HttpCode(HttpStatus.OK)
   @Post('create')
-  async createPlaceVisitRecord(
+  async createPlaceReview(
     @Body() body: CreatePlaceReviewPayload,
     @AuthUser() user: AccessTokenPayload,
   ): Promise<void> {
