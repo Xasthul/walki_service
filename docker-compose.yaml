@@ -1,15 +1,36 @@
 version: '3.7'
 services:
-  postgres:
+  database:
     image: postgres:13
-    container_name: postgres_db
+    container_name: waki-database
     ports:
-      - '5432:5432'
+      - '${DB_PORT}:${DB_PORT}'
     environment:
       - POSTGRES_DB=${DB_DATABASE}
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - walki_network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: walki-service
+    ports: 
+      - '${PORT}:${PORT}'
+    depends_on:
+      - database
+    volumes:
+      - ./src:/app/src
+    networks:
+      - walki_network
+
+networks:
+  walki_network:
+    driver: bridge
+
 volumes:
   postgres_data:

@@ -22,7 +22,7 @@ export class UsersController {
   @ApiResponse({ status: HttpStatus.OK, type: UserResource })
   @HttpCode(HttpStatus.OK)
   @Get('profile')
-  async signIn(@AuthUser() user: AccessTokenPayload): Promise<UserResource> {
+  async getUserInfo(@AuthUser() user: AccessTokenPayload): Promise<UserResource> {
     return await this.usersService.findById(user.userId);
   }
 
