@@ -5,7 +5,7 @@ import { PlaceVisitRecord } from 'src/entities/placeVisitRecord.entity';
 import { GetVisitedPlacesQueryParam } from 'src/types/queryParams/getVisitedPlacesQueryParam.dto';
 import { CreatePlaceVisitRecordPayload } from 'src/types/requestBody/createPlaceVisitRecordPayload.dto';
 import { GetPlaceVisitRecordsResource } from 'src/types/response/getPlaceVisitRecordsResource.dto';
-import { mapPlaceVisitRecordToPlaceVisitRecordResource } from 'src/utils/mappers/mapPlaceVisitRecordToPlaceVisitRecordResource.dto';
+import { mapPlaceVisitRecordToPlaceVisitRecordResource } from 'src/utils/mappers/mapPlaceVisitRecordToPlaceVisitRecordResource';
 import { Repository } from 'typeorm';
 import { Place } from 'src/entities/place.entity';
 

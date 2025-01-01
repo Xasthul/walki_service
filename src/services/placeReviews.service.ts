@@ -10,7 +10,7 @@ import { PlaceReview } from 'src/entities/placeReview.entity';
 import { User } from 'src/entities/user.entity';
 import { CreatePlaceReviewPayload } from 'src/types/requestBody/createPlaceReviewPayload.dto';
 import { GetPlaceReviewsResource } from 'src/types/response/getPlaceReviewsResource.dto';
-import { mapPlaceReviewToPlaceReviewResource } from 'src/utils/mappers/mapPlaceReviewToPlaceReviewResource.dto';
+import { mapPlaceReviewToPlaceReviewResource } from 'src/utils/mappers/mapPlaceReviewToPlaceReviewResource';
 import { Repository } from 'typeorm';
 
 @Injectable()
