@@ -33,7 +33,7 @@ export class PlaceReviewsController {
     return await this.placeReviewsService.createPlaceReview(body, user.userId);
   }
 
-  @ApiResponse({ status: HttpStatus.OK, type: [PlaceReviewResource] })
+  @ApiResponse({ status: HttpStatus.OK, type: GetPlaceReviewsResource })
   @HttpCode(HttpStatus.OK)
   @Get(':googlePlaceId')
   async getAllPlaceReviews(

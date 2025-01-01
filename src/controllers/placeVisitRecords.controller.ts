@@ -36,7 +36,7 @@ export class PlaceVisitRecordsController {
     );
   }
 
-  @ApiResponse({ status: HttpStatus.OK, type: [PlaceVisitRecordResource] })
+  @ApiResponse({ status: HttpStatus.OK, type: GetPlaceVisitRecordsResource })
   @HttpCode(HttpStatus.OK)
   @Get()
   async getAllPlaceVisitRecords(
