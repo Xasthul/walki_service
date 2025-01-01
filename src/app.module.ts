@@ -7,6 +7,7 @@ import { UsersModule } from './modules/users.module';
 import { PlaceVisitRecordsModule } from './modules/placeVisitRecords.module';
 import { PlaceReviewsModule } from './modules/placeReviews.module';
 import { HttpModule } from '@nestjs/axios';
+import { AdminModule } from './modules/admin.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { HttpModule } from '@nestjs/axios';
     UsersModule,
     PlaceVisitRecordsModule,
     PlaceReviewsModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
