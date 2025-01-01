@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
-  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfanityClient } from 'src/clients/ProfanityClient/profanity.client';
@@ -24,7 +23,7 @@ export class PlaceReviewsService {
     @InjectRepository(Place)
     private placesRepository: Repository<Place>,
     private profanityClient: ProfanityClient,
-  ) { }
+  ) {}
 
   async createPlaceReview(
     payload: CreatePlaceReviewPayload,
@@ -54,8 +53,12 @@ export class PlaceReviewsService {
     await this.placeReviewsRepository.save(review);
   }
 
-  async findAllForPlace(googlePlaceId: string): Promise<GetPlaceReviewsResource> {
-    const place = await this.placesRepository.findOneBy({ googlePlaceId: googlePlaceId });
+  async findAllForPlace(
+    googlePlaceId: string,
+  ): Promise<GetPlaceReviewsResource> {
+    const place = await this.placesRepository.findOneBy({
+      googlePlaceId: googlePlaceId,
+    });
     if (!place) {
       return { items: [] };
     }
