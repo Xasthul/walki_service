@@ -13,6 +13,9 @@ import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
 import { JwtService } from '@nestjs/jwt';
 import { SuperUserRefreshToken } from 'src/entities/superUserRefreshToken.entity';
 import { RefreshTokenPayload } from 'src/types/auth/refreshTokenPayload';
+import { AdminLoginResource } from 'src/types/response/adminLoginResource.dto';
+import { AdminGetTwoFactorAuthenticationSecretResource } from 'src/types/response/adminGetTwoFactorAuthenticationSecretResource.dto';
+import { AdminAuthenticationResource } from 'src/types/response/adminAuthenticationResource.dto';
 
 @Injectable()
 export class AdminService {
@@ -41,7 +44,7 @@ export class AdminService {
 
   /// Authentication
 
-  async login(username: string, password: string) {
+  async login(username: string, password: string): Promise<AdminLoginResource> {
     let superUser = await this.superUsersRepository.findOneBy({ username: username });
     if (!superUser) {
       const environmentUsername = this.configService.get<string>('SUPERUSER_USERNAME');
@@ -59,7 +62,7 @@ export class AdminService {
     };
   }
 
-  async generateTwoFactorAuthenticationSecret(username: string, password: string) {
+  async generateTwoFactorAuthenticationSecret(username: string, password: string): Promise<AdminGetTwoFactorAuthenticationSecretResource> {
     const superUser = await this.verifySuperUserCredentials(username, password);
 
     const secret = authenticator.generateSecret();
@@ -69,17 +72,14 @@ export class AdminService {
     superUser.twoFactorAuthenticationSecret = secret;
     await this.superUsersRepository.save(superUser);
 
-    return {
-      secret,
-      qrCode,
-    }
+    return { secret, qrCode }
   }
 
   async turnOnTwoFactorAuthentication(
     username: string,
     password: string,
     twoFactorAuthenticationCode: string,
-  ) {
+  ): Promise<AdminAuthenticationResource> {
     const superUser = await this.verifySuperUserCredentials(username, password);
 
     this.verifyTwoFactorAuthenticationCode(
@@ -100,7 +100,7 @@ export class AdminService {
     username: string,
     password: string,
     twoFactorAuthenticationCode: string,
-  ) {
+  ): Promise<AdminAuthenticationResource> {
     const superUser = await this.verifySuperUserCredentials(username, password);
 
     this.verifyTwoFactorAuthenticationCode(
@@ -114,7 +114,7 @@ export class AdminService {
     }
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(refreshToken: string): Promise<AdminAuthenticationResource> {
     let providedRefreshToken: RefreshTokenPayload;
     try {
       providedRefreshToken = await this.jwtService.verifyAsync(refreshToken);
@@ -163,7 +163,7 @@ export class AdminService {
   private verifyTwoFactorAuthenticationCode(
     twoFactorAuthenticationSecret: string,
     twoFactorAuthenticationCode: string,
-  ) {
+  ): void {
     const isCodeValid = authenticator.verify({
       token: twoFactorAuthenticationCode,
       secret: twoFactorAuthenticationSecret,
