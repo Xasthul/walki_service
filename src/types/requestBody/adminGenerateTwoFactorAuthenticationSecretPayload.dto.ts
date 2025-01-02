@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class AdminGenerateTwoFactorAuthenticationSecretPayload {
-  @ApiProperty({ example: 'email@email.com' })
-  @MaxLength(320)
-  @IsEmail()
-  readonly email: string;
+  @ApiProperty()
+  @MaxLength(64)
+  @IsString()
+  @IsNotEmpty()
+  readonly username: string;
 
   @ApiProperty()
   @MaxLength(256)

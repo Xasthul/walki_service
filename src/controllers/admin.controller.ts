@@ -69,14 +69,14 @@ export class AdminController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Body() body: AdminLoginPayload): Promise<AdminLoginResource> {
-    return await this.adminService.login(body.email, body.password);
+    return await this.adminService.login(body.username, body.password);
   }
 
   @ApiResponse({ status: HttpStatus.OK, type: AdminGetTwoFactorAuthenticationSecretResource })
   @HttpCode(HttpStatus.OK)
   @Post('2fa/generate')
   async generateTwoFactorAuthenticationSecret(@Body() body: AdminGenerateTwoFactorAuthenticationSecretPayload): Promise<AdminGetTwoFactorAuthenticationSecretResource> {
-    return await this.adminService.generateTwoFactorAuthenticationSecret(body.email, body.password);
+    return await this.adminService.generateTwoFactorAuthenticationSecret(body.username, body.password);
   }
 
   @ApiResponse({ status: HttpStatus.OK, type: AdminAuthenticationResource })
@@ -84,7 +84,7 @@ export class AdminController {
   @Post('2fa/turn-on')
   async turnOnTwoFactorAuthentication(@Body() body: AdminAuthenticationPayload): Promise<AdminAuthenticationResource> {
     return await this.adminService.turnOnTwoFactorAuthentication(
-      body.email,
+      body.username,
       body.password,
       body.twoFactorAuthenticationCode,
     );
@@ -95,7 +95,7 @@ export class AdminController {
   @Post('2fa/authenticate')
   async authenticateWithTwoFactorAuthentication(@Body() body: AdminAuthenticationPayload): Promise<AdminAuthenticationResource> {
     return await this.adminService.authenticateWithTwoFactorAuthenticationCode(
-      body.email,
+      body.username,
       body.password,
       body.twoFactorAuthenticationCode,
     );
