@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminController } from 'src/controllers/admin.controller';
 import { SuperUser } from 'src/entities/superUser.entity';

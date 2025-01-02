@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { authenticator } from 'otplib';
 import { User } from 'src/entities/user.entity';
@@ -7,7 +11,10 @@ import { mapUserToAdminUserResource } from 'src/utils/mappers/mapUserToAdminUser
 import { Repository } from 'typeorm';
 import { generateQrCodeDataURL } from 'src/utils/qrCode/generateQrCodeDataUrl';
 import { SuperUser } from 'src/entities/superUser.entity';
-import { comparePasswordWithHash, generatePasswordHash } from 'src/utils/hashing';
+import {
+  comparePasswordWithHash,
+  generatePasswordHash,
+} from 'src/utils/hashing';
 import { ConfigService } from '@nestjs/config';
 import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
 import { JwtService } from '@nestjs/jwt';
@@ -28,7 +35,7 @@ export class AdminService {
     private superUserRefreshTokensRepository: Repository<SuperUserRefreshToken>,
     private configService: ConfigService,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async findAllUsers(): Promise<AdminGetUsersResource> {
     const users = await this.usersRepository.find({
@@ -45,11 +52,18 @@ export class AdminService {
   /// Authentication
 
   async login(username: string, password: string): Promise<AdminLoginResource> {
-    let superUser = await this.superUsersRepository.findOneBy({ username: username });
+    let superUser = await this.superUsersRepository.findOneBy({
+      username: username,
+    });
     if (!superUser) {
-      const environmentUsername = this.configService.get<string>('SUPERUSER_USERNAME');
-      const environmentPassword = this.configService.get<string>('SUPERUSER_PASSWORD');
-      if (username !== environmentUsername || password !== environmentPassword) {
+      const environmentUsername =
+        this.configService.get<string>('SUPERUSER_USERNAME');
+      const environmentPassword =
+        this.configService.get<string>('SUPERUSER_PASSWORD');
+      if (
+        username !== environmentUsername ||
+        password !== environmentPassword
+      ) {
         throw new UnauthorizedException();
       }
       superUser = new SuperUser();
@@ -58,21 +72,29 @@ export class AdminService {
       await this.superUsersRepository.save(superUser);
     }
     return {
-      isTwoFactorAuthenticationEnabled: superUser.isTwoFactorAuthenticationEnabled,
+      isTwoFactorAuthenticationEnabled:
+        superUser.isTwoFactorAuthenticationEnabled,
     };
   }
 
-  async generateTwoFactorAuthenticationSecret(username: string, password: string): Promise<AdminGetTwoFactorAuthenticationSecretResource> {
+  async generateTwoFactorAuthenticationSecret(
+    username: string,
+    password: string,
+  ): Promise<AdminGetTwoFactorAuthenticationSecretResource> {
     const superUser = await this.verifySuperUserCredentials(username, password);
 
     const secret = authenticator.generateSecret();
-    const otpauthUrl = authenticator.keyuri(superUser.username, 'Walki Admin Panel', secret);
+    const otpauthUrl = authenticator.keyuri(
+      superUser.username,
+      'Walki Admin Panel',
+      secret,
+    );
     const qrCode = await generateQrCodeDataURL(otpauthUrl);
 
     superUser.twoFactorAuthenticationSecret = secret;
     await this.superUsersRepository.save(superUser);
 
-    return { secret, qrCode }
+    return { secret, qrCode };
   }
 
   async turnOnTwoFactorAuthentication(
@@ -94,12 +116,14 @@ export class AdminService {
     superUser.isTwoFactorAuthenticationEnabled = true;
     await this.superUsersRepository.save(superUser);
 
-    await this.superUserRefreshTokensRepository.delete({ userId: superUser.id });
+    await this.superUserRefreshTokensRepository.delete({
+      userId: superUser.id,
+    });
 
     return {
       accessToken: await this.createAccessToken(superUser.id),
       refreshToken: await this.createRefreshToken(superUser),
-    }
+    };
   }
 
   async authenticateWithTwoFactorAuthenticationCode(
@@ -114,15 +138,19 @@ export class AdminService {
       twoFactorAuthenticationCode,
     );
 
-    await this.superUserRefreshTokensRepository.delete({ userId: superUser.id });
+    await this.superUserRefreshTokensRepository.delete({
+      userId: superUser.id,
+    });
 
     return {
       accessToken: await this.createAccessToken(superUser.id),
       refreshToken: await this.createRefreshToken(superUser),
-    }
+    };
   }
 
-  async refreshToken(refreshToken: string): Promise<AdminAuthenticationResource> {
+  async refreshToken(
+    refreshToken: string,
+  ): Promise<AdminAuthenticationResource> {
     let providedRefreshToken: RefreshTokenPayload;
     try {
       providedRefreshToken = await this.jwtService.verifyAsync(refreshToken);
@@ -137,10 +165,11 @@ export class AdminService {
       throw new UnauthorizedException();
     }
 
-    const oldRefreshToken = await this.superUserRefreshTokensRepository.findOneBy({
-      id: providedRefreshToken.sub,
-      userId: providedRefreshToken.userId,
-    });
+    const oldRefreshToken =
+      await this.superUserRefreshTokensRepository.findOneBy({
+        id: providedRefreshToken.sub,
+        userId: providedRefreshToken.userId,
+      });
     if (!oldRefreshToken) {
       throw new UnauthorizedException();
     }
@@ -157,11 +186,16 @@ export class AdminService {
     username: string,
     password: string,
   ): Promise<SuperUser> {
-    const superUser = await this.superUsersRepository.findOneBy({ username: username });
+    const superUser = await this.superUsersRepository.findOneBy({
+      username: username,
+    });
     if (!superUser) {
       throw new UnauthorizedException();
     }
-    const hasPasswordsMatched = await comparePasswordWithHash(password, superUser.password);
+    const hasPasswordsMatched = await comparePasswordWithHash(
+      password,
+      superUser.password,
+    );
     if (!hasPasswordsMatched) {
       throw new UnauthorizedException();
     }

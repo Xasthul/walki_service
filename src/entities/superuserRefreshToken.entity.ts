@@ -12,7 +12,9 @@ export class SuperUserRefreshToken {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => SuperUser, (user) => user.refreshTokenId, { onDelete: 'CASCADE' })
+  @OneToOne(() => SuperUser, (user) => user.refreshTokenId, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   user: SuperUser;
 

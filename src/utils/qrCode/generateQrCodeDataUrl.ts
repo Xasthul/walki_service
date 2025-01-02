@@ -1,5 +1,5 @@
-import { toDataURL } from "qrcode";
+import { toDataURL } from 'qrcode';
 
 export async function generateQrCodeDataURL(url: string): Promise<string> {
-    return await toDataURL(url);
+  return await toDataURL(url);
 }

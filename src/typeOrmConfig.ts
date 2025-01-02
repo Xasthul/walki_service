@@ -23,7 +23,15 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
       username: configService.get<string>('DB_USERNAME'),
       password: configService.get<string>('DB_PASSWORD'),
       database: configService.get<string>('DB_DATABASE'),
-      entities: [User, RefreshToken, Place, PlaceVisitRecord, PlaceReview, SuperUser, SuperUserRefreshToken],
+      entities: [
+        User,
+        RefreshToken,
+        Place,
+        PlaceVisitRecord,
+        PlaceReview,
+        SuperUser,
+        SuperUserRefreshToken,
+      ],
       // NOTE: must be false in prod
       synchronize: true,
     };

@@ -16,7 +16,6 @@ import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
 import { CreatePlaceReviewPayload } from 'src/types/requestBody/createPlaceReviewPayload.dto';
 import { GetPlaceReviewsParam } from 'src/types/requestBody/getPlaceReviewsParam.dto';
 import { GetPlaceReviewsResource } from 'src/types/response/getPlaceReviewsResource.dto';
-import { PlaceReviewResource } from 'src/types/response/placeReviewResource.dto';
 
 @ApiTags('Place reviews')
 @Controller('place-reviews')
