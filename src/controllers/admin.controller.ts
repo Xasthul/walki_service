@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -12,19 +14,26 @@ import { AuthUser } from 'src/decorators/authUser.decorator';
 import { JwtAuthGuard } from 'src/guards/jwtAuth.guard';
 import { AdminService } from 'src/services/admin.service';
 import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
+import { AdminAuthenticationPayload } from 'src/types/requestBody/adminAuthenticationPayload.dto';
+import { AdminGenerateTwoFactorAuthenticationSecretPayload } from 'src/types/requestBody/adminGenerateTwoFactorAuthenticationSecretPayload.dto';
+import { AdminLoginPayload } from 'src/types/requestBody/adminLoginPayload.dto';
+import { AdminRefreshTokenPayload } from 'src/types/requestBody/adminRefreshTokenPayload.dto';
+import { AdminAuthenticationResource } from 'src/types/response/adminAuthenticationResource.dto';
+import { AdminGetTwoFactorAuthenticationSecretResource } from 'src/types/response/adminGetTwoFactorAuthenticationSecretResource.dto';
 import { AdminGetUsersResource } from 'src/types/response/adminGetUsersResource.dto';
+import { AdminLoginResource } from 'src/types/response/adminLoginResource.dto';
 
 @ApiTags('Admin Panel')
 @Controller('admin')
 // @UseGuards(JwtAuthGuard)
 export class AdminController {
-  constructor(private adminService: AdminService) {}
+  constructor(private adminService: AdminService) { }
 
   @ApiResponse({ status: HttpStatus.OK, type: AdminGetUsersResource })
   @HttpCode(HttpStatus.OK)
   @Get('users')
   async getUsers() // @AuthUser() user: AccessTokenPayload,
-  : Promise<AdminGetUsersResource> {
+    : Promise<AdminGetUsersResource> {
     return await this.adminService.findAllUsers();
   }
 
@@ -55,4 +64,47 @@ export class AdminController {
   // ): Promise<void> {
   //   return await this.adminService.deletePlaceReview(id, user.userId);
   // }
+
+  @ApiResponse({ status: HttpStatus.OK, type: AdminLoginResource })
+  @HttpCode(HttpStatus.OK)
+  @Post('login')
+  async login(@Body() body: AdminLoginPayload): Promise<AdminLoginResource> {
+    return await this.adminService.login(body.email, body.password);
+  }
+
+  @ApiResponse({ status: HttpStatus.OK, type: AdminGetTwoFactorAuthenticationSecretResource })
+  @HttpCode(HttpStatus.OK)
+  @Post('2fa/generate')
+  async generateTwoFactorAuthenticationSecret(@Body() body: AdminGenerateTwoFactorAuthenticationSecretPayload): Promise<AdminGetTwoFactorAuthenticationSecretResource> {
+    return await this.adminService.generateTwoFactorAuthenticationSecret(body.email, body.password);
+  }
+
+  @ApiResponse({ status: HttpStatus.OK, type: AdminAuthenticationResource })
+  @HttpCode(HttpStatus.OK)
+  @Post('2fa/turn-on')
+  async turnOnTwoFactorAuthentication(@Body() body: AdminAuthenticationPayload): Promise<AdminAuthenticationResource> {
+    return await this.adminService.turnOnTwoFactorAuthentication(
+      body.email,
+      body.password,
+      body.twoFactorAuthenticationCode,
+    );
+  }
+
+  @ApiResponse({ status: HttpStatus.OK, type: AdminAuthenticationResource })
+  @HttpCode(HttpStatus.OK)
+  @Post('2fa/authenticate')
+  async authenticateWithTwoFactorAuthentication(@Body() body: AdminAuthenticationPayload): Promise<AdminAuthenticationResource> {
+    return await this.adminService.authenticateWithTwoFactorAuthenticationCode(
+      body.email,
+      body.password,
+      body.twoFactorAuthenticationCode,
+    );
+  }
+
+  @ApiResponse({ status: HttpStatus.OK, type: AdminAuthenticationResource })
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh-token')
+  async refreshToken(@Body() body: AdminRefreshTokenPayload): Promise<AdminAuthenticationResource> {
+    return await this.adminService.refreshToken(body.refreshToken,);
+  }
 }
