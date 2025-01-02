@@ -2,7 +2,9 @@ import {
     Entity,
     Column,
     PrimaryGeneratedColumn,
+    OneToOne,
 } from 'typeorm';
+import { SuperuserRefreshToken } from './superuserRefreshToken.entity';
 
 @Entity()
 export class Superuser {
@@ -20,4 +22,7 @@ export class Superuser {
 
     @Column()
     twoFactorAuthenticationSecret: string;
+
+    @OneToOne(() => SuperuserRefreshToken, (refreshToken) => refreshToken.userId)
+    refreshTokenId: string;
 }

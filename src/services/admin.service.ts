@@ -10,6 +10,10 @@ import { generateQrCodeDataURL } from 'src/utils/qrCode/generateQrCodeDataUrl';
 import { Superuser } from 'src/entities/superuser.entity';
 import { comparePasswordWithHash, generatePasswordHash } from 'src/utils/hashing';
 import { ConfigService } from '@nestjs/config';
+import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
+import { JwtService } from '@nestjs/jwt';
+import { SuperuserRefreshToken } from 'src/entities/superuserRefreshToken.entity';
+import { RefreshTokenPayload } from 'src/types/auth/refreshTokenPayload';
 
 @Injectable()
 export class AdminService {
@@ -18,7 +22,10 @@ export class AdminService {
     private usersRepository: Repository<User>,
     @InjectRepository(Superuser)
     private superusersRepository: Repository<Superuser>,
+    @InjectRepository(SuperuserRefreshToken)
+    private superuserRefreshTokensRepository: Repository<SuperuserRefreshToken>,
     private configService: ConfigService,
+    private jwtService: JwtService,
   ) { }
 
   async findAllUsers(): Promise<AdminGetUsersResource> {
@@ -32,6 +39,8 @@ export class AdminService {
       items: users.map(mapUserToAdminUserResource),
     };
   }
+
+  /// Authentication
 
   async login(username: string, password: string) {
     let superuser = await this.superusersRepository.findOneBy({ username: username });
@@ -52,7 +61,7 @@ export class AdminService {
   }
 
   async generateTwoFactorAuthenticationSecret(username: string, password: string) {
-    const superuser = await this.verifySuperuserRecordExists(username, password);
+    const superuser = await this.verifySuperuserCredentials(username, password);
 
     const secret = authenticator.generateSecret();
     const otpauthUrl = authenticator.keyuri(superuser.username, 'Walki Admin Panel', secret);
@@ -72,7 +81,7 @@ export class AdminService {
     password: string,
     twoFactorAuthenticationCode: string,
   ) {
-    const superuser = await this.verifySuperuserRecordExists(username, password);
+    const superuser = await this.verifySuperuserCredentials(username, password);
 
     this.verifyTwoFactorAuthenticationCode(
       superuser.twoFactorAuthenticationSecret,
@@ -83,8 +92,8 @@ export class AdminService {
     await this.superusersRepository.save(superuser);
 
     return {
-      accessToken: '',
-      refreshToken: '',
+      accessToken: await this.createAccessToken(superuser.id),
+      refreshToken: await this.createRefreshToken(superuser),
     }
   }
 
@@ -93,7 +102,7 @@ export class AdminService {
     password: string,
     twoFactorAuthenticationCode: string,
   ) {
-    const superuser = await this.verifySuperuserRecordExists(username, password);
+    const superuser = await this.verifySuperuserCredentials(username, password);
 
     this.verifyTwoFactorAuthenticationCode(
       superuser.twoFactorAuthenticationSecret,
@@ -101,12 +110,43 @@ export class AdminService {
     );
 
     return {
-      accessToken: '',
-      refreshToken: '',
+      accessToken: await this.createAccessToken(superuser.id),
+      refreshToken: await this.createRefreshToken(superuser),
     }
   }
 
-  private async verifySuperuserRecordExists(
+  async refreshToken(refreshToken: string) {
+    let providedRefreshToken: RefreshTokenPayload;
+    try {
+      providedRefreshToken = await this.jwtService.verifyAsync(refreshToken);
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
+
+    const superuser = await this.superusersRepository.findOneBy({
+      id: providedRefreshToken.userId,
+    });
+    if (!superuser) {
+      throw new UnauthorizedException();
+    }
+
+    const oldRefreshToken = await this.superuserRefreshTokensRepository.findOneBy({
+      id: providedRefreshToken.sub,
+      userId: providedRefreshToken.userId,
+    });
+    if (!oldRefreshToken) {
+      throw new UnauthorizedException();
+    }
+
+    await this.superuserRefreshTokensRepository.remove(oldRefreshToken);
+
+    return {
+      accessToken: await this.createAccessToken(superuser.id),
+      refreshToken: await this.createRefreshToken(superuser),
+    };
+  }
+
+  private async verifySuperuserCredentials(
     username: string,
     password: string,
   ): Promise<Superuser> {
@@ -132,5 +172,26 @@ export class AdminService {
     if (!isCodeValid) {
       throw new UnauthorizedException();
     }
+  }
+
+  private async createAccessToken(userId: string): Promise<string> {
+    const accessTokenPayload: AccessTokenPayload = { userId: userId };
+    return await this.jwtService.signAsync(accessTokenPayload, {
+      expiresIn: '5m',
+    });
+  }
+
+  private async createRefreshToken(user: Superuser): Promise<string> {
+    const refreshToken = new SuperuserRefreshToken();
+    refreshToken.user = user;
+    await this.superuserRefreshTokensRepository.save(refreshToken);
+
+    const refreshTokenPayload: RefreshTokenPayload = {
+      sub: refreshToken.id,
+      userId: refreshToken.userId,
+    };
+    return await this.jwtService.signAsync(refreshTokenPayload, {
+      expiresIn: '21d',
+    });
   }
 }
