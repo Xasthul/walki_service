@@ -5,16 +5,16 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { Superuser } from './superuser.entity';
+import { SuperUser } from './superUser.entity';
 
 @Entity()
-export class SuperuserRefreshToken {
+export class SuperUserRefreshToken {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => Superuser, (user) => user.refreshTokenId, { onDelete: 'CASCADE' })
+  @OneToOne(() => SuperUser, (user) => user.refreshTokenId, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
-  user: Superuser;
+  user: SuperUser;
 
   @Column('uuid')
   userId: string;

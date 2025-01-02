@@ -5,14 +5,13 @@ import { User } from 'src/entities/user.entity';
 import { AdminGetUsersResource } from 'src/types/response/adminGetUsersResource.dto';
 import { mapUserToAdminUserResource } from 'src/utils/mappers/mapUserToAdminUserResource';
 import { Repository } from 'typeorm';
-import { toDataURL } from 'qrcode';
 import { generateQrCodeDataURL } from 'src/utils/qrCode/generateQrCodeDataUrl';
-import { Superuser } from 'src/entities/superuser.entity';
+import { SuperUser } from 'src/entities/superUser.entity';
 import { comparePasswordWithHash, generatePasswordHash } from 'src/utils/hashing';
 import { ConfigService } from '@nestjs/config';
 import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
 import { JwtService } from '@nestjs/jwt';
-import { SuperuserRefreshToken } from 'src/entities/superuserRefreshToken.entity';
+import { SuperUserRefreshToken } from 'src/entities/superUserRefreshToken.entity';
 import { RefreshTokenPayload } from 'src/types/auth/refreshTokenPayload';
 
 @Injectable()
@@ -20,10 +19,10 @@ export class AdminService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    @InjectRepository(Superuser)
-    private superusersRepository: Repository<Superuser>,
-    @InjectRepository(SuperuserRefreshToken)
-    private superuserRefreshTokensRepository: Repository<SuperuserRefreshToken>,
+    @InjectRepository(SuperUser)
+    private superUsersRepository: Repository<SuperUser>,
+    @InjectRepository(SuperUserRefreshToken)
+    private superUserRefreshTokensRepository: Repository<SuperUserRefreshToken>,
     private configService: ConfigService,
     private jwtService: JwtService,
   ) { }
@@ -43,32 +42,32 @@ export class AdminService {
   /// Authentication
 
   async login(username: string, password: string) {
-    let superuser = await this.superusersRepository.findOneBy({ username: username });
-    if (!superuser) {
+    let superUser = await this.superUsersRepository.findOneBy({ username: username });
+    if (!superUser) {
       const environmentUsername = this.configService.get<string>('SUPERUSER_USERNAME');
       const environmentPassword = this.configService.get<string>('SUPERUSER_PASSWORD');
       if (username !== environmentUsername || password !== environmentPassword) {
         throw new UnauthorizedException();
       }
-      superuser = new Superuser();
-      superuser.username = username;
-      superuser.password = await generatePasswordHash(password);
-      await this.superusersRepository.save(superuser);
+      superUser = new SuperUser();
+      superUser.username = username;
+      superUser.password = await generatePasswordHash(password);
+      await this.superUsersRepository.save(superUser);
     }
     return {
-      isTwoFactorAuthenticationEnabled: superuser.isTwoFactorAuthenticationEnabled,
+      isTwoFactorAuthenticationEnabled: superUser.isTwoFactorAuthenticationEnabled,
     };
   }
 
   async generateTwoFactorAuthenticationSecret(username: string, password: string) {
-    const superuser = await this.verifySuperuserCredentials(username, password);
+    const superUser = await this.verifySuperUserCredentials(username, password);
 
     const secret = authenticator.generateSecret();
-    const otpauthUrl = authenticator.keyuri(superuser.username, 'Walki Admin Panel', secret);
+    const otpauthUrl = authenticator.keyuri(superUser.username, 'Walki Admin Panel', secret);
     const qrCode = await generateQrCodeDataURL(otpauthUrl);
 
-    superuser.twoFactorAuthenticationSecret = secret;
-    await this.superusersRepository.save(superuser);
+    superUser.twoFactorAuthenticationSecret = secret;
+    await this.superUsersRepository.save(superUser);
 
     return {
       secret,
@@ -81,19 +80,19 @@ export class AdminService {
     password: string,
     twoFactorAuthenticationCode: string,
   ) {
-    const superuser = await this.verifySuperuserCredentials(username, password);
+    const superUser = await this.verifySuperUserCredentials(username, password);
 
     this.verifyTwoFactorAuthenticationCode(
-      superuser.twoFactorAuthenticationSecret,
+      superUser.twoFactorAuthenticationSecret,
       twoFactorAuthenticationCode,
     );
 
-    superuser.isTwoFactorAuthenticationEnabled = true;
-    await this.superusersRepository.save(superuser);
+    superUser.isTwoFactorAuthenticationEnabled = true;
+    await this.superUsersRepository.save(superUser);
 
     return {
-      accessToken: await this.createAccessToken(superuser.id),
-      refreshToken: await this.createRefreshToken(superuser),
+      accessToken: await this.createAccessToken(superUser.id),
+      refreshToken: await this.createRefreshToken(superUser),
     }
   }
 
@@ -102,16 +101,16 @@ export class AdminService {
     password: string,
     twoFactorAuthenticationCode: string,
   ) {
-    const superuser = await this.verifySuperuserCredentials(username, password);
+    const superUser = await this.verifySuperUserCredentials(username, password);
 
     this.verifyTwoFactorAuthenticationCode(
-      superuser.twoFactorAuthenticationSecret,
+      superUser.twoFactorAuthenticationSecret,
       twoFactorAuthenticationCode,
     );
 
     return {
-      accessToken: await this.createAccessToken(superuser.id),
-      refreshToken: await this.createRefreshToken(superuser),
+      accessToken: await this.createAccessToken(superUser.id),
+      refreshToken: await this.createRefreshToken(superUser),
     }
   }
 
@@ -123,14 +122,14 @@ export class AdminService {
       throw new UnauthorizedException();
     }
 
-    const superuser = await this.superusersRepository.findOneBy({
+    const superUser = await this.superUsersRepository.findOneBy({
       id: providedRefreshToken.userId,
     });
-    if (!superuser) {
+    if (!superUser) {
       throw new UnauthorizedException();
     }
 
-    const oldRefreshToken = await this.superuserRefreshTokensRepository.findOneBy({
+    const oldRefreshToken = await this.superUserRefreshTokensRepository.findOneBy({
       id: providedRefreshToken.sub,
       userId: providedRefreshToken.userId,
     });
@@ -138,27 +137,27 @@ export class AdminService {
       throw new UnauthorizedException();
     }
 
-    await this.superuserRefreshTokensRepository.remove(oldRefreshToken);
+    await this.superUserRefreshTokensRepository.remove(oldRefreshToken);
 
     return {
-      accessToken: await this.createAccessToken(superuser.id),
-      refreshToken: await this.createRefreshToken(superuser),
+      accessToken: await this.createAccessToken(superUser.id),
+      refreshToken: await this.createRefreshToken(superUser),
     };
   }
 
-  private async verifySuperuserCredentials(
+  private async verifySuperUserCredentials(
     username: string,
     password: string,
-  ): Promise<Superuser> {
-    const superuser = await this.superusersRepository.findOneBy({ username: username });
-    if (!superuser) {
+  ): Promise<SuperUser> {
+    const superUser = await this.superUsersRepository.findOneBy({ username: username });
+    if (!superUser) {
       throw new UnauthorizedException();
     }
-    const hasPasswordsMatched = await comparePasswordWithHash(password, superuser.password);
+    const hasPasswordsMatched = await comparePasswordWithHash(password, superUser.password);
     if (!hasPasswordsMatched) {
       throw new UnauthorizedException();
     }
-    return superuser;
+    return superUser;
   }
 
   private verifyTwoFactorAuthenticationCode(
@@ -181,10 +180,10 @@ export class AdminService {
     });
   }
 
-  private async createRefreshToken(user: Superuser): Promise<string> {
-    const refreshToken = new SuperuserRefreshToken();
+  private async createRefreshToken(user: SuperUser): Promise<string> {
+    const refreshToken = new SuperUserRefreshToken();
     refreshToken.user = user;
-    await this.superuserRefreshTokensRepository.save(refreshToken);
+    await this.superUserRefreshTokensRepository.save(refreshToken);
 
     const refreshTokenPayload: RefreshTokenPayload = {
       sub: refreshToken.id,

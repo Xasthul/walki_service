@@ -4,10 +4,10 @@ import {
     PrimaryGeneratedColumn,
     OneToOne,
 } from 'typeorm';
-import { SuperuserRefreshToken } from './superuserRefreshToken.entity';
+import { SuperUserRefreshToken } from './superUserRefreshToken.entity';
 
 @Entity()
-export class Superuser {
+export class SuperUser {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
@@ -23,6 +23,6 @@ export class Superuser {
     @Column()
     twoFactorAuthenticationSecret: string;
 
-    @OneToOne(() => SuperuserRefreshToken, (refreshToken) => refreshToken.userId)
+    @OneToOne(() => SuperUserRefreshToken, (refreshToken) => refreshToken.userId)
     refreshTokenId: string;
 }
