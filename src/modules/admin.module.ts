@@ -9,7 +9,7 @@ import { AdminService } from 'src/services/admin.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, SuperUser, SuperUserRefreshToken])],
-  providers: [AdminService, JwtService],
+  providers: [AdminService],
   controllers: [AdminController],
 })
 export class AdminModule {}
