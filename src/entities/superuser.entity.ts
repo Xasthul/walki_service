@@ -20,7 +20,7 @@ export class SuperUser {
     @Column({ default: false })
     isTwoFactorAuthenticationEnabled: boolean;
 
-    @Column()
+    @Column({ nullable: true })
     twoFactorAuthenticationSecret: string;
 
     @OneToOne(() => SuperUserRefreshToken, (refreshToken) => refreshToken.userId)

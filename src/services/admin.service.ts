@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { authenticator } from 'otplib';
 import { User } from 'src/entities/user.entity';
@@ -81,6 +81,10 @@ export class AdminService {
     twoFactorAuthenticationCode: string,
   ): Promise<AdminAuthenticationResource> {
     const superUser = await this.verifySuperUserCredentials(username, password);
+
+    if (superUser.twoFactorAuthenticationSecret === null) {
+      throw new UnprocessableEntityException();
+    }
 
     this.verifyTwoFactorAuthenticationCode(
       superUser.twoFactorAuthenticationSecret,
