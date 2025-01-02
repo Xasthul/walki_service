@@ -94,6 +94,8 @@ export class AdminService {
     superUser.isTwoFactorAuthenticationEnabled = true;
     await this.superUsersRepository.save(superUser);
 
+    await this.superUserRefreshTokensRepository.delete({ userId: superUser.id });
+
     return {
       accessToken: await this.createAccessToken(superUser.id),
       refreshToken: await this.createRefreshToken(superUser),
@@ -111,6 +113,8 @@ export class AdminService {
       superUser.twoFactorAuthenticationSecret,
       twoFactorAuthenticationCode,
     );
+
+    await this.superUserRefreshTokensRepository.delete({ userId: superUser.id });
 
     return {
       accessToken: await this.createAccessToken(superUser.id),
