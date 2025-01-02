@@ -35,7 +35,7 @@ export class AdminService {
     private superUserRefreshTokensRepository: Repository<SuperUserRefreshToken>,
     private configService: ConfigService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async findAllUsers(): Promise<AdminGetUsersResource> {
     const users = await this.usersRepository.find({
@@ -97,7 +97,7 @@ export class AdminService {
     return { secret, qrCode };
   }
 
-  async turnOnTwoFactorAuthentication(
+  async authenticateWithTwoFactorAuthenticationCode(
     username: string,
     password: string,
     twoFactorAuthenticationCode: string,
@@ -108,35 +108,18 @@ export class AdminService {
       throw new UnprocessableEntityException();
     }
 
-    this.verifyTwoFactorAuthenticationCode(
-      superUser.twoFactorAuthenticationSecret,
-      twoFactorAuthenticationCode,
-    );
-
-    superUser.isTwoFactorAuthenticationEnabled = true;
-    await this.superUsersRepository.save(superUser);
-
-    await this.superUserRefreshTokensRepository.delete({
-      userId: superUser.id,
+    const isCodeValid = authenticator.verify({
+      token: twoFactorAuthenticationCode,
+      secret: superUser.twoFactorAuthenticationSecret,
     });
+    if (!isCodeValid) {
+      throw new UnauthorizedException();
+    }
 
-    return {
-      accessToken: await this.createAccessToken(superUser.id),
-      refreshToken: await this.createRefreshToken(superUser),
-    };
-  }
-
-  async authenticateWithTwoFactorAuthenticationCode(
-    username: string,
-    password: string,
-    twoFactorAuthenticationCode: string,
-  ): Promise<AdminAuthenticationResource> {
-    const superUser = await this.verifySuperUserCredentials(username, password);
-
-    this.verifyTwoFactorAuthenticationCode(
-      superUser.twoFactorAuthenticationSecret,
-      twoFactorAuthenticationCode,
-    );
+    if (!superUser.isTwoFactorAuthenticationEnabled) {
+      superUser.isTwoFactorAuthenticationEnabled = true;
+      await this.superUsersRepository.save(superUser);
+    }
 
     await this.superUserRefreshTokensRepository.delete({
       userId: superUser.id,
@@ -200,19 +183,6 @@ export class AdminService {
       throw new UnauthorizedException();
     }
     return superUser;
-  }
-
-  private verifyTwoFactorAuthenticationCode(
-    twoFactorAuthenticationSecret: string,
-    twoFactorAuthenticationCode: string,
-  ): void {
-    const isCodeValid = authenticator.verify({
-      token: twoFactorAuthenticationCode,
-      secret: twoFactorAuthenticationSecret,
-    });
-    if (!isCodeValid) {
-      throw new UnauthorizedException();
-    }
   }
 
   private async createAccessToken(userId: string): Promise<string> {

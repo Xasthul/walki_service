@@ -83,19 +83,6 @@ export class AdminController {
 
   @ApiResponse({ status: HttpStatus.OK, type: AdminAuthenticationResource })
   @HttpCode(HttpStatus.OK)
-  @Post('2fa/turn-on')
-  async turnOnTwoFactorAuthentication(
-    @Body() body: AdminAuthenticationPayload,
-  ): Promise<AdminAuthenticationResource> {
-    return await this.adminService.turnOnTwoFactorAuthentication(
-      body.username,
-      body.password,
-      body.twoFactorAuthenticationCode,
-    );
-  }
-
-  @ApiResponse({ status: HttpStatus.OK, type: AdminAuthenticationResource })
-  @HttpCode(HttpStatus.OK)
   @Post('2fa/authenticate')
   async authenticateWithTwoFactorAuthentication(
     @Body() body: AdminAuthenticationPayload,
