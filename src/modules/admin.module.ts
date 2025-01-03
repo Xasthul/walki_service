@@ -4,8 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminController } from 'src/controllers/admin.controller';
 import { SuperUser } from 'src/entities/superUser.entity';
 import { User } from 'src/entities/user.entity';
-import { LocalStrategy } from 'src/strategies/local.strategy';
-import { SessionSerializer } from 'src/strategies/sessionSerializer';
+import { JwtStrategy } from 'src/guards/jwt.strategy';
 import { AdminService } from 'src/services/admin.service';
 
 @Module({
@@ -13,7 +12,7 @@ import { AdminService } from 'src/services/admin.service';
     TypeOrmModule.forFeature([User, SuperUser]),
     PassportModule.register({ session: true }),
   ],
-  providers: [AdminService, LocalStrategy, SessionSerializer],
   controllers: [AdminController],
+  providers: [AdminService, JwtStrategy],
 })
 export class AdminModule {}

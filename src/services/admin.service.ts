@@ -1,6 +1,7 @@
 import {
   Injectable,
   UnauthorizedException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { authenticator } from 'otplib';
@@ -17,7 +18,9 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { AdminLoginResource } from 'src/types/response/adminLoginResource.dto';
 import { AdminGetTwoFactorAuthenticationSecretResource } from 'src/types/response/adminGetTwoFactorAuthenticationSecretResource.dto';
-
+import { AdminAuthenticationResource } from 'src/types/response/adminAuthenticationResource.dto';
+import { JwtService } from '@nestjs/jwt';
+import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
 
 @Injectable()
 export class AdminService {
@@ -27,6 +30,7 @@ export class AdminService {
     @InjectRepository(SuperUser)
     private superUsersRepository: Repository<SuperUser>,
     private configService: ConfigService,
+    private jwtService: JwtService,
   ) { }
 
   async findAllUsers(): Promise<AdminGetUsersResource> {
@@ -91,27 +95,29 @@ export class AdminService {
     username: string,
     password: string,
     twoFactorAuthenticationCode: string,
-  ): Promise<SuperUser> {
+  ): Promise<AdminAuthenticationResource> {
     const superUser = await this.verifySuperUserCredentials(username, password);
 
-    // if (superUser.twoFactorAuthenticationSecret === null) {
-    //   throw new UnprocessableEntityException();
-    // }
+    if (superUser.twoFactorAuthenticationSecret === null) {
+      throw new UnprocessableEntityException();
+    }
 
-    // const isCodeValid = authenticator.verify({
-    //   token: twoFactorAuthenticationCode,
-    //   secret: superUser.twoFactorAuthenticationSecret,
-    // });
-    // if (!isCodeValid) {
-    //   throw new UnauthorizedException();
-    // }
+    const isCodeValid = authenticator.verify({
+      token: twoFactorAuthenticationCode,
+      secret: superUser.twoFactorAuthenticationSecret,
+    });
+    if (!isCodeValid) {
+      throw new UnauthorizedException();
+    }
 
-    // if (!superUser.isTwoFactorAuthenticationEnabled) {
-    //   superUser.isTwoFactorAuthenticationEnabled = true;
-    //   await this.superUsersRepository.save(superUser);
-    // }
+    if (!superUser.isTwoFactorAuthenticationEnabled) {
+      superUser.isTwoFactorAuthenticationEnabled = true;
+      await this.superUsersRepository.save(superUser);
+    }
 
-    return superUser;
+    return {
+      accessToken: await this.createAccessToken(superUser.id),
+    };
   }
 
   private async verifySuperUserCredentials(
@@ -132,5 +138,10 @@ export class AdminService {
       throw new UnauthorizedException();
     }
     return superUser;
+  }
+
+  private async createAccessToken(userId: string): Promise<string> {
+    const accessTokenPayload: AccessTokenPayload = { userId: userId };
+    return await this.jwtService.signAsync(accessTokenPayload, { expiresIn: '5m' });
   }
 }

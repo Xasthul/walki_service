@@ -8,21 +8,22 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/guards/jwtAuth.guard';
 import { AdminService } from 'src/services/admin.service';
+import { AdminAuthenticationPayload } from 'src/types/requestBody/adminAuthenticationPayload.dto';
 import { AdminGenerateTwoFactorAuthenticationSecretPayload } from 'src/types/requestBody/adminGenerateTwoFactorAuthenticationSecretPayload.dto';
 import { AdminLoginPayload } from 'src/types/requestBody/adminLoginPayload.dto';
+import { AdminAuthenticationResource } from 'src/types/response/adminAuthenticationResource.dto';
 import { AdminGetTwoFactorAuthenticationSecretResource } from 'src/types/response/adminGetTwoFactorAuthenticationSecretResource.dto';
 import { AdminGetUsersResource } from 'src/types/response/adminGetUsersResource.dto';
 import { AdminLoginResource } from 'src/types/response/adminLoginResource.dto';
-import { LocalGuard } from 'src/guards/local.guard';
-import { LoggedInGuard } from 'src/guards/loggedIn.guard';
 
 @ApiTags('Admin Panel')
 @Controller('admin')
 export class AdminController {
   constructor(private adminService: AdminService) { }
 
-  @UseGuards(LoggedInGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({ status: HttpStatus.OK, type: AdminGetUsersResource })
   @HttpCode(HttpStatus.OK)
   @Get('users')
@@ -81,12 +82,16 @@ export class AdminController {
     );
   }
 
-  @UseGuards(LocalGuard)
   @ApiResponse({ status: HttpStatus.OK })
   @HttpCode(HttpStatus.OK)
   @Post('2fa/authenticate')
   async authenticateWithTwoFactorAuthentication(
-  ): Promise<void> {
-    return;
+    @Body() body: AdminAuthenticationPayload,
+  ): Promise<AdminAuthenticationResource> {
+    return await this.adminService.authenticateWithTwoFactorAuthenticationCode(
+      body.username,
+      body.password,
+      body.twoFactorAuthenticationCode,
+    );
   }
 }

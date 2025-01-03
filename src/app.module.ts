@@ -8,12 +8,14 @@ import { PlaceVisitRecordsModule } from './modules/placeVisitRecords.module';
 import { PlaceReviewsModule } from './modules/placeReviews.module';
 import { HttpModule } from '@nestjs/axios';
 import { AdminModule } from './modules/admin.module';
+import { GlobalJwtModule } from './modules/globalJwt.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
     HttpModule.register({ global: true }),
+    GlobalJwtModule,
     AuthModule,
     UsersModule,
     PlaceVisitRecordsModule,

@@ -6,19 +6,11 @@ import { PassportModule } from '@nestjs/passport';
 import { User } from 'src/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RefreshToken } from 'src/entities/refreshToken.entity';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { JwtStrategy } from 'src/strategies/jwt.strategy';
+import { JwtStrategy } from 'src/guards/jwt.strategy';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, RefreshToken]),
-    JwtModule.registerAsync({
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-      }),
-      inject: [ConfigService],
-    }),
     UsersModule,
     PassportModule,
   ],
