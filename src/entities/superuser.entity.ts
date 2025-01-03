@@ -1,5 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
-import { SuperUserRefreshToken } from './superUserRefreshToken.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class SuperUser {
@@ -17,7 +16,4 @@ export class SuperUser {
 
   @Column({ nullable: true })
   twoFactorAuthenticationSecret: string;
-
-  @OneToOne(() => SuperUserRefreshToken, (refreshToken) => refreshToken.userId)
-  refreshTokenId: string;
 }

@@ -1,7 +1,6 @@
 import {
   Injectable,
   UnauthorizedException,
-  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { authenticator } from 'otplib';
@@ -16,13 +15,9 @@ import {
   generatePasswordHash,
 } from 'src/utils/hashing';
 import { ConfigService } from '@nestjs/config';
-import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
-import { JwtService } from '@nestjs/jwt';
-import { SuperUserRefreshToken } from 'src/entities/superUserRefreshToken.entity';
-import { RefreshTokenPayload } from 'src/types/auth/refreshTokenPayload';
 import { AdminLoginResource } from 'src/types/response/adminLoginResource.dto';
 import { AdminGetTwoFactorAuthenticationSecretResource } from 'src/types/response/adminGetTwoFactorAuthenticationSecretResource.dto';
-import { AdminAuthenticationResource } from 'src/types/response/adminAuthenticationResource.dto';
+
 
 @Injectable()
 export class AdminService {
@@ -31,10 +26,7 @@ export class AdminService {
     private usersRepository: Repository<User>,
     @InjectRepository(SuperUser)
     private superUsersRepository: Repository<SuperUser>,
-    @InjectRepository(SuperUserRefreshToken)
-    private superUserRefreshTokensRepository: Repository<SuperUserRefreshToken>,
     private configService: ConfigService,
-    private jwtService: JwtService,
   ) { }
 
   async findAllUsers(): Promise<AdminGetUsersResource> {
@@ -48,8 +40,6 @@ export class AdminService {
       items: users.map(mapUserToAdminUserResource),
     };
   }
-
-  /// Authentication
 
   async login(username: string, password: string): Promise<AdminLoginResource> {
     let superUser = await this.superUsersRepository.findOneBy({
@@ -101,68 +91,27 @@ export class AdminService {
     username: string,
     password: string,
     twoFactorAuthenticationCode: string,
-  ): Promise<AdminAuthenticationResource> {
+  ): Promise<SuperUser> {
     const superUser = await this.verifySuperUserCredentials(username, password);
 
-    if (superUser.twoFactorAuthenticationSecret === null) {
-      throw new UnprocessableEntityException();
-    }
+    // if (superUser.twoFactorAuthenticationSecret === null) {
+    //   throw new UnprocessableEntityException();
+    // }
 
-    const isCodeValid = authenticator.verify({
-      token: twoFactorAuthenticationCode,
-      secret: superUser.twoFactorAuthenticationSecret,
-    });
-    if (!isCodeValid) {
-      throw new UnauthorizedException();
-    }
+    // const isCodeValid = authenticator.verify({
+    //   token: twoFactorAuthenticationCode,
+    //   secret: superUser.twoFactorAuthenticationSecret,
+    // });
+    // if (!isCodeValid) {
+    //   throw new UnauthorizedException();
+    // }
 
-    if (!superUser.isTwoFactorAuthenticationEnabled) {
-      superUser.isTwoFactorAuthenticationEnabled = true;
-      await this.superUsersRepository.save(superUser);
-    }
+    // if (!superUser.isTwoFactorAuthenticationEnabled) {
+    //   superUser.isTwoFactorAuthenticationEnabled = true;
+    //   await this.superUsersRepository.save(superUser);
+    // }
 
-    await this.superUserRefreshTokensRepository.delete({
-      userId: superUser.id,
-    });
-
-    return {
-      accessToken: await this.createAccessToken(superUser.id),
-      refreshToken: await this.createRefreshToken(superUser),
-    };
-  }
-
-  async refreshToken(
-    refreshToken: string,
-  ): Promise<AdminAuthenticationResource> {
-    let providedRefreshToken: RefreshTokenPayload;
-    try {
-      providedRefreshToken = await this.jwtService.verifyAsync(refreshToken);
-    } catch (error) {
-      throw new UnauthorizedException();
-    }
-
-    const superUser = await this.superUsersRepository.findOneBy({
-      id: providedRefreshToken.userId,
-    });
-    if (!superUser) {
-      throw new UnauthorizedException();
-    }
-
-    const oldRefreshToken =
-      await this.superUserRefreshTokensRepository.findOneBy({
-        id: providedRefreshToken.sub,
-        userId: providedRefreshToken.userId,
-      });
-    if (!oldRefreshToken) {
-      throw new UnauthorizedException();
-    }
-
-    await this.superUserRefreshTokensRepository.remove(oldRefreshToken);
-
-    return {
-      accessToken: await this.createAccessToken(superUser.id),
-      refreshToken: await this.createRefreshToken(superUser),
-    };
+    return superUser;
   }
 
   private async verifySuperUserCredentials(
@@ -183,26 +132,5 @@ export class AdminService {
       throw new UnauthorizedException();
     }
     return superUser;
-  }
-
-  private async createAccessToken(userId: string): Promise<string> {
-    const accessTokenPayload: AccessTokenPayload = { userId: userId };
-    return await this.jwtService.signAsync(accessTokenPayload, {
-      expiresIn: '5m',
-    });
-  }
-
-  private async createRefreshToken(user: SuperUser): Promise<string> {
-    const refreshToken = new SuperUserRefreshToken();
-    refreshToken.user = user;
-    await this.superUserRefreshTokensRepository.save(refreshToken);
-
-    const refreshTokenPayload: RefreshTokenPayload = {
-      sub: refreshToken.id,
-      userId: refreshToken.userId,
-    };
-    return await this.jwtService.signAsync(refreshTokenPayload, {
-      expiresIn: '21d',
-    });
   }
 }

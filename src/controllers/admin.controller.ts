@@ -5,29 +5,28 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Res,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AdminService } from 'src/services/admin.service';
-import { AdminAuthenticationPayload } from 'src/types/requestBody/adminAuthenticationPayload.dto';
 import { AdminGenerateTwoFactorAuthenticationSecretPayload } from 'src/types/requestBody/adminGenerateTwoFactorAuthenticationSecretPayload.dto';
 import { AdminLoginPayload } from 'src/types/requestBody/adminLoginPayload.dto';
-import { AdminRefreshTokenPayload } from 'src/types/requestBody/adminRefreshTokenPayload.dto';
 import { AdminGetTwoFactorAuthenticationSecretResource } from 'src/types/response/adminGetTwoFactorAuthenticationSecretResource.dto';
 import { AdminGetUsersResource } from 'src/types/response/adminGetUsersResource.dto';
 import { AdminLoginResource } from 'src/types/response/adminLoginResource.dto';
-import { FastifyReply } from 'fastify';
+import { LocalGuard } from 'src/guards/local.guard';
+import { LoggedInGuard } from 'src/guards/loggedIn.guard';
 
 @ApiTags('Admin Panel')
 @Controller('admin')
-// @UseGuards(JwtAuthGuard)
 export class AdminController {
   constructor(private adminService: AdminService) { }
 
+  @UseGuards(LoggedInGuard)
   @ApiResponse({ status: HttpStatus.OK, type: AdminGetUsersResource })
   @HttpCode(HttpStatus.OK)
   @Get('users')
-  async getUsers() // @AuthUser() user: AccessTokenPayload,
+  async getUsers()
     : Promise<AdminGetUsersResource> {
     return await this.adminService.findAllUsers();
   }
@@ -82,37 +81,12 @@ export class AdminController {
     );
   }
 
+  @UseGuards(LocalGuard)
   @ApiResponse({ status: HttpStatus.OK })
   @HttpCode(HttpStatus.OK)
   @Post('2fa/authenticate')
   async authenticateWithTwoFactorAuthentication(
-    @Body() body: AdminAuthenticationPayload,
-    @Res({ passthrough: true }) response: FastifyReply,
   ): Promise<void> {
-    const tokens = await this.adminService.authenticateWithTwoFactorAuthenticationCode(
-      body.username,
-      body.password,
-      body.twoFactorAuthenticationCode,
-    );
-
-    response.setCookie('accessToken', tokens.accessToken, { httpOnly: true, secure: true });
-    response.setCookie('refreshToken', tokens.refreshToken, { httpOnly: true, secure: true });
-
-    return response.send();
-  }
-
-  @ApiResponse({ status: HttpStatus.OK })
-  @HttpCode(HttpStatus.OK)
-  @Post('refresh-token')
-  async refreshToken(
-    @Body() body: AdminRefreshTokenPayload,
-    @Res({ passthrough: true }) response: FastifyReply,
-  ): Promise<void> {
-    const tokens = await this.adminService.refreshToken(body.refreshToken);
-
-    response.setCookie('accessToken', tokens.accessToken, { httpOnly: true, secure: true });
-    response.setCookie('refreshToken', tokens.refreshToken, { httpOnly: true, secure: true });
-
-    return response.send();
+    return;
   }
 }

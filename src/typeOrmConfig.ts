@@ -9,7 +9,6 @@ import { RefreshToken } from './entities/refreshToken.entity';
 import { PlaceReview } from './entities/placeReview.entity';
 import { Place } from './entities/place.entity';
 import { SuperUser } from './entities/superUser.entity';
-import { SuperUserRefreshToken } from './entities/superUserRefreshToken.entity';
 
 export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
   inject: [ConfigService],
@@ -30,7 +29,6 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
         PlaceVisitRecord,
         PlaceReview,
         SuperUser,
-        SuperUserRefreshToken,
       ],
       // NOTE: must be false in prod
       synchronize: true,
