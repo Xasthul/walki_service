@@ -1,5 +1,6 @@
 import {
   Injectable,
+  NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -24,6 +25,9 @@ import { AdminGetPlacesResource } from 'src/types/response/adminGetPlacesResourc
 import { Place } from 'src/entities/place.entity';
 import { mapUserToAdminUserResource } from 'src/utils/mappers/mapUserToAdminUserResource';
 import { mapPlaceToAdminPlaceResource } from 'src/utils/mappers/mapPlaceToAdminPlaceResource';
+import { PlaceReview } from 'src/entities/placeReview.entity';
+import { AdminGetPlacesReviewsResource } from 'src/types/response/adminGetPlacesReviewsResource.dto';
+import { mapPlaceReviewToAdminPlaceReviewResource } from 'src/utils/mappers/mapPlaceReviewToAdminPlaceReviewResource';
 
 @Injectable()
 export class AdminService {
@@ -32,6 +36,8 @@ export class AdminService {
     private usersRepository: Repository<User>,
     @InjectRepository(Place)
     private placesRepository: Repository<Place>,
+    @InjectRepository(PlaceReview)
+    private placeReviewsRepository: Repository<PlaceReview>,
     @InjectRepository(SuperUser)
     private superUsersRepository: Repository<SuperUser>,
     private configService: ConfigService,
@@ -60,6 +66,26 @@ export class AdminService {
     return {
       items: places.map(mapPlaceToAdminPlaceResource),
     };
+  }
+
+  async findAllPlacesReviews(): Promise<AdminGetPlacesReviewsResource> {
+    const placesReviews = await this.placeReviewsRepository.find({
+      relations: {
+        user: true,
+        place: true,
+      },
+    });
+    return {
+      items: placesReviews.map(mapPlaceReviewToAdminPlaceReviewResource),
+    };
+  }
+
+  async deletePlaceReview(reviewId: string): Promise<void> {
+    const placeReview = await this.placeReviewsRepository.findOneBy({ id: reviewId });
+    if (!placeReview) {
+      throw new NotFoundException();
+    }
+    await this.placeReviewsRepository.remove(placeReview);
   }
 
   async login(username: string, password: string): Promise<AdminLoginResource> {

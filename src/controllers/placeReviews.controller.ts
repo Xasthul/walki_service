@@ -14,7 +14,7 @@ import { JwtAuthGuard } from 'src/guards/jwtAuth.guard';
 import { PlaceReviewsService } from 'src/services/placeReviews.service';
 import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
 import { CreatePlaceReviewPayload } from 'src/types/requestBody/createPlaceReviewPayload.dto';
-import { GetPlaceReviewsParam } from 'src/types/requestBody/getPlaceReviewsParam.dto';
+import { GetPlaceReviewsParam } from 'src/types/queryParams/getPlaceReviewsParam.dto';
 import { GetPlaceReviewsResource } from 'src/types/response/getPlaceReviewsResource.dto';
 
 @ApiTags('Place reviews')

@@ -1,20 +1,24 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guards/jwtAuth.guard';
 import { AdminService } from 'src/services/admin.service';
+import { AdminDeletePlaceReviewParam } from 'src/types/queryParams/admiDeletePlaceReviewParam.dto';
 import { AdminAuthenticationPayload } from 'src/types/requestBody/adminAuthenticationPayload.dto';
 import { AdminGenerateTwoFactorAuthenticationSecretPayload } from 'src/types/requestBody/adminGenerateTwoFactorAuthenticationSecretPayload.dto';
 import { AdminLoginPayload } from 'src/types/requestBody/adminLoginPayload.dto';
 import { AdminAuthenticationResource } from 'src/types/response/adminAuthenticationResource.dto';
 import { AdminGetPlacesResource } from 'src/types/response/adminGetPlacesResource.dto';
+import { AdminGetPlacesReviewsResource } from 'src/types/response/adminGetPlacesReviewsResource.dto';
 import { AdminGetTwoFactorAuthenticationSecretResource } from 'src/types/response/adminGetTwoFactorAuthenticationSecretResource.dto';
 import { AdminGetUsersResource } from 'src/types/response/adminGetUsersResource.dto';
 import { AdminLoginResource } from 'src/types/response/adminLoginResource.dto';
@@ -40,24 +44,21 @@ export class AdminController {
     return await this.adminService.findAllPlaces();
   }
 
-  // @ApiResponse({ status: HttpStatus.OK, type: AdminGetPlacesReviewsResource })
-  // @HttpCode(HttpStatus.OK)
-  // @Get('places-reviews')
-  // async getPlacesReviews(
-  //   @AuthUser() user: AccessTokenPayload,
-  // ): Promise<AdminGetPlacesReviewsResource> {
-  //   return await this.adminService.findAllPlacesReviews(user.userId);
-  // }
+  @ApiResponse({ status: HttpStatus.OK, type: AdminGetPlacesReviewsResource })
+  @HttpCode(HttpStatus.OK)
+  @Get('places-reviews')
+  async getPlacesReviews(): Promise<AdminGetPlacesReviewsResource> {
+    return await this.adminService.findAllPlacesReviews();
+  }
 
-  // @ApiResponse({ status: HttpStatus.OK })
-  // @HttpCode(HttpStatus.OK)
-  // @Delete('place-review/:id')
-  // async deletePlaceReview(
-  //   @Param() id: AdminDeletePlaceReviewParam,
-  //   @AuthUser() user: AccessTokenPayload,
-  // ): Promise<void> {
-  //   return await this.adminService.deletePlaceReview(id, user.userId);
-  // }
+  @ApiResponse({ status: HttpStatus.OK })
+  @HttpCode(HttpStatus.OK)
+  @Delete('places-reviews/:reviewId')
+  async deletePlaceReview(
+    @Param() param: AdminDeletePlaceReviewParam,
+  ): Promise<void> {
+    return await this.adminService.deletePlaceReview(param.reviewId);
+  }
 
   @ApiResponse({ status: HttpStatus.OK, type: AdminLoginResource })
   @HttpCode(HttpStatus.OK)
