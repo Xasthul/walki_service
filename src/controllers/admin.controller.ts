@@ -14,6 +14,7 @@ import { AdminAuthenticationPayload } from 'src/types/requestBody/adminAuthentic
 import { AdminGenerateTwoFactorAuthenticationSecretPayload } from 'src/types/requestBody/adminGenerateTwoFactorAuthenticationSecretPayload.dto';
 import { AdminLoginPayload } from 'src/types/requestBody/adminLoginPayload.dto';
 import { AdminAuthenticationResource } from 'src/types/response/adminAuthenticationResource.dto';
+import { AdminGetPlacesResource } from 'src/types/response/adminGetPlacesResource.dto';
 import { AdminGetTwoFactorAuthenticationSecretResource } from 'src/types/response/adminGetTwoFactorAuthenticationSecretResource.dto';
 import { AdminGetUsersResource } from 'src/types/response/adminGetUsersResource.dto';
 import { AdminLoginResource } from 'src/types/response/adminLoginResource.dto';
@@ -27,19 +28,17 @@ export class AdminController {
   @ApiResponse({ status: HttpStatus.OK, type: AdminGetUsersResource })
   @HttpCode(HttpStatus.OK)
   @Get('users')
-  async getUsers()
-    : Promise<AdminGetUsersResource> {
+  async getUsers(): Promise<AdminGetUsersResource> {
     return await this.adminService.findAllUsers();
   }
 
-  // @ApiResponse({ status: HttpStatus.OK, type: AdminGetPlacesResource })
-  // @HttpCode(HttpStatus.OK)
-  // @Get('places')
-  // async getPlaces(
-  //   @AuthUser() user: AccessTokenPayload,
-  // ): Promise<AdminGetPlacesResource> {
-  //   return await this.adminService.findAllPlaces(user.userId);
-  // }
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: AdminGetPlacesResource })
+  @HttpCode(HttpStatus.OK)
+  @Get('places')
+  async getPlaces(): Promise<AdminGetPlacesResource> {
+    return await this.adminService.findAllPlaces();
+  }
 
   // @ApiResponse({ status: HttpStatus.OK, type: AdminGetPlacesReviewsResource })
   // @HttpCode(HttpStatus.OK)

@@ -7,7 +7,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { authenticator } from 'otplib';
 import { User } from 'src/entities/user.entity';
 import { AdminGetUsersResource } from 'src/types/response/adminGetUsersResource.dto';
-import { mapUserToAdminUserResource } from 'src/utils/mappers/mapUserToAdminUserResource';
 import { Repository } from 'typeorm';
 import { generateQrCodeDataURL } from 'src/utils/qrCode/generateQrCodeDataUrl';
 import { SuperUser } from 'src/entities/superUser.entity';
@@ -21,12 +20,18 @@ import { AdminGetTwoFactorAuthenticationSecretResource } from 'src/types/respons
 import { AdminAuthenticationResource } from 'src/types/response/adminAuthenticationResource.dto';
 import { JwtService } from '@nestjs/jwt';
 import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
+import { AdminGetPlacesResource } from 'src/types/response/adminGetPlacesResource.dto';
+import { Place } from 'src/entities/place.entity';
+import { mapUserToAdminUserResource } from 'src/utils/mappers/mapUserToAdminUserResource';
+import { mapPlaceToAdminPlaceResource } from 'src/utils/mappers/mapPlaceToAdminPlaceResource';
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(Place)
+    private placesRepository: Repository<Place>,
     @InjectRepository(SuperUser)
     private superUsersRepository: Repository<SuperUser>,
     private configService: ConfigService,
@@ -42,6 +47,18 @@ export class AdminService {
     });
     return {
       items: users.map(mapUserToAdminUserResource),
+    };
+  }
+
+  async findAllPlaces(): Promise<AdminGetPlacesResource> {
+    const places = await this.placesRepository.find({
+      relations: {
+        visitRecords: true,
+        reviews: true,
+      },
+    });
+    return {
+      items: places.map(mapPlaceToAdminPlaceResource),
     };
   }
 
@@ -142,6 +159,6 @@ export class AdminService {
 
   private async createAccessToken(userId: string): Promise<string> {
     const accessTokenPayload: AccessTokenPayload = { userId: userId };
-    return await this.jwtService.signAsync(accessTokenPayload, { expiresIn: '5m' });
+    return await this.jwtService.signAsync(accessTokenPayload, { expiresIn: '60m' });
   }
 }
