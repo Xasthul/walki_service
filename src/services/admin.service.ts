@@ -107,6 +107,14 @@ export class AdminService {
       superUser.username = username;
       superUser.password = await generatePasswordHash(password);
       await this.superUsersRepository.save(superUser);
+    } else {
+      const hasPasswordsMatched = await comparePasswordWithHash(
+        password,
+        superUser.password,
+      );
+      if (!hasPasswordsMatched) {
+        throw new UnauthorizedException();
+      }
     }
     return {
       isTwoFactorAuthenticationEnabled:
