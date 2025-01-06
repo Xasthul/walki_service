@@ -193,6 +193,6 @@ export class AdminService {
 
   private async createAccessToken(userId: string): Promise<string> {
     const accessTokenPayload: AccessTokenPayload = { userId: userId };
-    return await this.jwtService.signAsync(accessTokenPayload, { expiresIn: '60m' });
+    return await this.jwtService.signAsync(accessTokenPayload, { expiresIn: '15m' });
   }
 }
