@@ -11,26 +11,26 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    # networks:
-    #   - walki_network
+    networks:
+      - walki_network
 
-#   backend:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#     container_name: walki-service
-#     ports: 
-#       - '${PORT}:${PORT}'
-#     depends_on:
-#       - database
-#     volumes:
-#       - ./src:/app/src
-#     networks:
-#       - walki_network
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: walki-service
+    ports: 
+      - '${PORT}:${PORT}'
+    depends_on:
+      - database
+    volumes:
+      - ./src:/app/src
+    networks:
+      - walki_network
 
-# networks:
-#   walki_network:
-#     driver: bridge
+networks:
+  walki_network:
+    driver: bridge
 
 volumes:
   postgres_data:
