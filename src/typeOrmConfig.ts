@@ -8,6 +8,7 @@ import { PlaceVisitRecord } from './entities/placeVisitRecord.entity';
 import { RefreshToken } from './entities/refreshToken.entity';
 import { PlaceReview } from './entities/placeReview.entity';
 import { Place } from './entities/place.entity';
+import { SuperUser } from './entities/superUser.entity';
 
 export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
   inject: [ConfigService],
@@ -21,7 +22,14 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
       username: configService.get<string>('DB_USERNAME'),
       password: configService.get<string>('DB_PASSWORD'),
       database: configService.get<string>('DB_DATABASE'),
-      entities: [User, RefreshToken, Place, PlaceVisitRecord, PlaceReview],
+      entities: [
+        User,
+        RefreshToken,
+        Place,
+        PlaceVisitRecord,
+        PlaceReview,
+        SuperUser,
+      ],
       // NOTE: must be false in prod
       synchronize: true,
     };

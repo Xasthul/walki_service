@@ -14,9 +14,8 @@ import { JwtAuthGuard } from 'src/guards/jwtAuth.guard';
 import { PlaceReviewsService } from 'src/services/placeReviews.service';
 import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
 import { CreatePlaceReviewPayload } from 'src/types/requestBody/createPlaceReviewPayload.dto';
-import { GetPlaceReviewsParam } from 'src/types/requestBody/getPlaceReviewsParam.dto';
+import { GetPlaceReviewsParam } from 'src/types/queryParams/getPlaceReviewsParam.dto';
 import { GetPlaceReviewsResource } from 'src/types/response/getPlaceReviewsResource.dto';
-import { PlaceReviewResource } from 'src/types/response/placeReviewResource.dto';
 
 @ApiTags('Place reviews')
 @Controller('place-reviews')
@@ -33,7 +32,7 @@ export class PlaceReviewsController {
     return await this.placeReviewsService.createPlaceReview(body, user.userId);
   }
 
-  @ApiResponse({ status: HttpStatus.OK, type: [PlaceReviewResource] })
+  @ApiResponse({ status: HttpStatus.OK, type: GetPlaceReviewsResource })
   @HttpCode(HttpStatus.OK)
   @Get(':googlePlaceId')
   async getAllPlaceReviews(

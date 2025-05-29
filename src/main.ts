@@ -1,19 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter(),
-  );
-  // app.enableCors();
+  const app = await NestFactory.create(AppModule);
+
+  app.enableCors({
+    origin: app.get(ConfigService).get<string>('FRONTEND_URL'),
+    credentials: true,
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -40,8 +38,8 @@ async function bootstrap() {
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, swaggerDocument);
 
-  const port = app.get(ConfigService).get<number>('PORT');
-  await app.listen({ port: port, host: '0.0.0.0' });
+  const port = app.get(ConfigService).get('PORT') as number;
+  await app.listen(port);
 }
 bootstrap();
 

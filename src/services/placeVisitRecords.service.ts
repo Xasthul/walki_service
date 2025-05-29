@@ -1,11 +1,11 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { PlaceVisitRecord } from 'src/entities/placeVisitRecord.entity';
 import { GetVisitedPlacesQueryParam } from 'src/types/queryParams/getVisitedPlacesQueryParam.dto';
 import { CreatePlaceVisitRecordPayload } from 'src/types/requestBody/createPlaceVisitRecordPayload.dto';
 import { GetPlaceVisitRecordsResource } from 'src/types/response/getPlaceVisitRecordsResource.dto';
-import { mapPlaceVisitRecordToPlaceVisitRecordResource } from 'src/utils/mappers/mapPlaceVisitRecordToPlaceVisitRecordResource.dto';
+import { mapPlaceVisitRecordToPlaceVisitRecordResource } from 'src/utils/mappers/mapPlaceVisitRecordToPlaceVisitRecordResource';
 import { Repository } from 'typeorm';
 import { Place } from 'src/entities/place.entity';
 
@@ -18,7 +18,7 @@ export class PlaceVisitRecordsService {
     private usersRepository: Repository<User>,
     @InjectRepository(Place)
     private placesRepository: Repository<Place>,
-  ) {}
+  ) { }
 
   async createPlaceVisitRecord(
     payload: CreatePlaceVisitRecordPayload,
@@ -35,6 +35,14 @@ export class PlaceVisitRecordsService {
     });
     if (!place) {
       place = await this.savePlace(payload);
+    } else {
+      const hasUserAlreadyVisitedPlace = await this.placeVisitRecordsRepository.findOneBy({
+        userId: userId,
+        placeId: place.id
+      });
+      if (hasUserAlreadyVisitedPlace) {
+        throw new ConflictException();
+      }
     }
 
     await this.savePlaceVisitRecord(user, place);

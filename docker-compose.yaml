@@ -2,7 +2,7 @@ version: '3.7'
 services:
   database:
     image: postgres:13
-    container_name: waki-database
+    container_name: walki-database
     ports:
       - '${DB_PORT}:${DB_PORT}'
     environment:

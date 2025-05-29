@@ -16,7 +16,6 @@ import { AccessTokenPayload } from 'src/types/auth/accessTokenPayload';
 import { GetVisitedPlacesQueryParam } from 'src/types/queryParams/getVisitedPlacesQueryParam.dto';
 import { CreatePlaceVisitRecordPayload } from 'src/types/requestBody/createPlaceVisitRecordPayload.dto';
 import { GetPlaceVisitRecordsResource } from 'src/types/response/getPlaceVisitRecordsResource.dto';
-import { PlaceVisitRecordResource } from 'src/types/response/placeVisitRecordResource.dto';
 
 @ApiTags('Place visit records')
 @Controller('place-visit-records')
@@ -36,7 +35,7 @@ export class PlaceVisitRecordsController {
     );
   }
 
-  @ApiResponse({ status: HttpStatus.OK, type: [PlaceVisitRecordResource] })
+  @ApiResponse({ status: HttpStatus.OK, type: GetPlaceVisitRecordsResource })
   @HttpCode(HttpStatus.OK)
   @Get()
   async getAllPlaceVisitRecords(
